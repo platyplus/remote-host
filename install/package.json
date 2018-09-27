@@ -1,0 +1,15 @@
+{
+  "name": "nix-install",
+  "version": "1.0.0",
+  "description": "Script for standard installation of NixOS remote instances",
+  "main": "install.js",
+  "scripts": {
+    "test": "echo \"Info: No test specified\" && exit 0",
+    "build": "pkg install.js --targets=node10-linux-x64"
+  },
+  "author": "Pierre-Louis Mercereau",
+  "license": "ISC",
+  "devDependencies": {
+    "pkg": "^4.3.4"
+  }
+}

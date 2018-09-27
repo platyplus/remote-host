@@ -1,5 +1,5 @@
 # NixOS
-NixOS config for servers in the field.
+NixOS config for remote servers with little connectivity and available skills.
 
 1. [Installing NixOS from scratch](#method-1-installing-nixos-from-scratch)
 2. [Converting an existing Linux system into NixOS](#method-2-converting-an-existing-linux-system-into-nixos)
@@ -7,6 +7,20 @@ NixOS config for servers in the field.
 
 ## Method 1: Installing NixOS from scratch
 
+### Prepare a bootable USB key
+TODO
+https://nixos.org/nixos/download.html
+
+### Download and launch the installation script
+TODO
+```sh
+curl https://github.com/platyplus/NixOS/file > /tmp/nix-install
+chmod +x /tmp/nix-install
+/tmp/nix-install
+```
+
+
+## TODO: simplify what's below
 ### Setting up filesystems
 
 [(LVM reference.)](https://www.digitalocean.com/community/tutorials/an-introduction-to-lvm-concepts-terminology-and-operations)
