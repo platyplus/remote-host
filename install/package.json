@@ -5,7 +5,9 @@
   "bin": "install.js",
   "pkg": {
     "targets": [
-      "node10"
+      "node10-macos-x64",
+      "node10-linux-x64",
+      "node10-linux-x86"
     ]
   },
   "author": "Pierre-Louis Mercereau",
