@@ -5,7 +5,7 @@
   "main": "install.js",
   "scripts": {
     "test": "echo \"Info: No test specified\" && exit 0",
-    "build": "pkg install.js --targets=node10-linux-x64 --output=../install"
+    "build": "pkg install.js --targets=node10-linux --output=../install"
   },
   "author": "Pierre-Louis Mercereau",
   "license": "ISC",

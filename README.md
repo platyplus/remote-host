@@ -14,7 +14,7 @@ https://nixos.org/nixos/download.html
 ### Download and launch the installation script
 TODO
 ```sh
-curl https://github.com/platyplus/NixOS/master/install > /tmp/nix-install
+curl https://raw.githubusercontent.com/platyplus/NixOS/master/install > /tmp/nix-install
 chmod +x /tmp/nix-install
 /tmp/nix-install
 ```
