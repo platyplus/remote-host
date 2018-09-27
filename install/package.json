@@ -2,14 +2,6 @@
   "name": "nix-install",
   "version": "1.0.0",
   "description": "Script for standard installation of NixOS remote instances",
-  "bin": "install.js",
-  "pkg": {
-    "targets": [
-      "node10-macos-x64",
-      "node10-linux-x64",
-      "node10-linux-x86"
-    ]
-  },
   "author": "Pierre-Louis Mercereau",
   "license": "ISC",
   "devDependencies": {

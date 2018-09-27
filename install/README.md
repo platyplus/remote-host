@@ -4,11 +4,11 @@
 Node version 10 installed
 ### Install Zeit pkg
 ```sh
-npm install -g pkg
+npm install -g nexe
 ```
 ### Build the script
 ```sh
-pkg .
+nexe install.js
 ```
 
 ## Push back the binary file to the GitHub repository
