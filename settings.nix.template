@@ -1,0 +1,21 @@
+{
+  # Add any additional required modules
+  imports = [
+    ./hardware-configuration.nix
+    ./reverse-tunnel.nix
+    ./users/msfocb.nix
+  ];
+
+  hostname = "";
+
+  grub.device = "/dev/disk/by-<id|path>/<label>";
+
+  networkmanager.enable = true;
+ 
+  # Timezone of the location where the server will be deployed
+  timezone = "Europe/Brussels";
+ 
+  reverse_tunnel_forward_port = "6xxx";
+
+}
+
