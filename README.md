@@ -11,136 +11,21 @@ NixOS config for remote servers with little connectivity and available skills.
 TODO
 https://nixos.org/nixos/download.html
 
-### Download and launch the installation script
-TODO
+### Run the installation script
 ```sh
-curl https://raw.githubusercontent.com/platyplus/NixOS/master/install/nix-install-linux-x86 > /tmp/nix-install
-chmod +x /tmp/nix-install
-/tmp/nix-install
+curl https://raw.githubusercontent.com/platyplus/NixOS/master/install.sh | sh
 ```
+TODO ip, hostname, tunnel...
+### Remove the USB key and reboot the system
 
+### Run the post-installation script
+ssh from the tunnel?
+```sh
+ssh xxx@platyplus.io -p 2222
+sh /etc/nixos/post-install.sh
+```
 
 ## TODO: simplify what's below
-### Setting up filesystems
-
-[(LVM reference.)](https://www.digitalocean.com/community/tutorials/an-introduction-to-lvm-concepts-terminology-and-operations)
-
-Use `fdisk` to create partitions, you can list all devices with `fdisk -l` and then run `fdisk <device>` to configure a particular drive.
-
-1. boot partition 1 GB, type 83 (Linux);
-2. LVM partition for the rest of the drive, type 8e (Linux LVM);
-3. Full drive LVM partition for any extra drives.
-
-(Use the `m` function to see the commands. Use `n` to create a new partition and choose `+1G` for the size for `boot` and the default option of "rest of the disk" for the root partition. Then use `t` to change the type of the root partition and `w` to write the changes.)
-
-Create a physical volume for every LVM partition using
-```
-pvcreate <partition>
-```
-Create a volume group containing all volumes using
-```
-vgcreate LVMVolGroup <partition 1> ... <partition n>
-```
-
-**If you plan to create an encrypted data partition**, then create a single 40GB root partition on the LVM volume using
-```
-lvcreate -L 40GB -n nixos_root LVMVolGroup
-```
-
-**If you do not plan to create an encrypted data partition** and want the root filesystem to use the whole disk instead, then use
-```
-lvcreate -l 100%FREE -n nixos_root LVMVolGroup
-```
-
-Create filesystems:
-```
-mkfs.ext4 -L nixos_boot /dev/<boot partition>
-mkfs.ext4 -L nixos_root /dev/LVMVolGroup/nixos_root
-```
-
-### Installing the OS
-
-[(NixOS installation manual)](https://nixos.org/nixos/manual/index.html#sec-installation)
-
-```
-mount /dev/disk/by-label/nixos_root /mnt
-mkdir /mnt/boot
-mount /dev/disk/by-label/nixos_boot /mnt/boot
-nixos-generate-config --root /mnt
-curl -L https://github.com/MSF-OCB/NixOS/archive/master.zip --output /tmp/config.zip
-cd /tmp
-unzip config.zip
-mv NixOS-master/* /mnt/etc/nixos
-mv NixOS-master/.gitignore /mnt/etc/nixos
-rmdir NixOS-master # Verify it's empty now
-cp /mnt/etc/nixos/settings.nix.template /mnt/etc/nixos/settings.nix
-```
-
-To find a stable device name for grub and append it to the settings file for copy/paste:
-```
-ls -l /dev/disk/by-id/ | grep "wwn.*<device>$" | tee -a /mnt/etc/nixos/settings.nix
-```
-Then you can add the path to the `grub.device` setting.
-
-Set the required settings:
-```
-nano /mnt/etc/nixos/settings.nix
-```
-
-And if you enabled the reverse tunnel service, generate a key pair for the tunnel:
-```
-ssh-keygen -a 100 -t ed25519 -N "" -C "tunnel@${HOSTNAME}" -f /mnt/etc/nixos/local/id_tunnel
-```
-if the reverse tunnel service is enabled in settings.nix but the private key is not present, the build will fail and complain that the file cannot be found.
-
-Then launch the installer:
-```
-nixos-install --no-root-passwd --max-jobs 4
-```
-*Note down the current IP address*, this will allow you to connect via ssh in a bit, use `ip addr` to find the current address.
-
-Then, reboot, remove the usb drive and boot into the new OS.
-
-### Final steps after booting the OS
-
-You should now be able to connect to the newly installed system with ssh, using the local IP address which you noted down before the reboot.
-
-First check that we are on the correct nix channel
-```
-sudo nix-channel --list
-```
-This should show the 18.03 channel with name `nixos`, otherwise we need to add it
-```
-sudo nix-channel --add https://nixos.org/channels/nixos-18.03 nixos
-```
-
-Then we will do a full system update
-```
-sudo nixos-rebuild switch --upgrade
-```
-
-If you just upgraded from an existing Linux system, it's safer to reinstall the bootloader once more to avoid issues
-```
-sudo nixos-rebuild switch --upgrade --install-bootloader
-```
-
-Next, if not already done, we'll put the content of the *public* key file for the reverse tunnel (`/etc/nixos/local/id_tunnel.pub`) in the `authorized_keys` file for the tunnel user on github (this repo, `keys/tunnel`). (Easiest way is to connect via SSH on the local network to copy the key.)
-Then do a `git pull` and a rebuild of the config on the ssh relay servers.
-
-Finally, we will turn `/etc/nixos` into a git clone of this repository
-```
-git init
-git remote add origin https://github.com/MSF-OCB/NixOS
-git fetch
-git checkout --force --track origin/master  # Force to overwrite local files
-git pull --rebase
-```
-Check with `git status` that there are no left-over untracked files, these should probably be either deleted or commited.
-
-You're all done! Refer to [Creating an encrypted data partition](#creating-an-encrypted-data-partition) if you want to set up an encrypted data partition.
-
----
-
 ## Method 2: Converting an existing Linux system into NixOS
 
 We don't need a swap partition since we use zram swap on NixOS, we'll thus delete the swap partition and add the extra space to the root partition.
