@@ -78,4 +78,4 @@ ssh-keygen -a 100 -t ed25519 -N "" -C "tunnel@${HOSTNAME}" -f /mnt/etc/nixos/loc
 # the build will fail and complain that the file cannot be found.
 # Then launch the installer:
 nixos-install --no-root-passwd --max-jobs 4
-
+echo "IP address: $ADDRESS"
