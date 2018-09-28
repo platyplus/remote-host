@@ -33,7 +33,7 @@ mount /dev/disk/by-label/nixos_root /mnt
 mkdir /mnt/boot
 mount /dev/disk/by-label/nixos_boot /mnt/boot
 nixos-generate-config --root /mnt
-curl -L https://github.com/platyplys/NixOS/archive/master.zip --output /tmp/config.zip
+curl -L https://github.com/platyplus/NixOS/archive/master.zip --output /tmp/config.zip
 cd /tmp
 unzip config.zip
 mv NixOS-master/* /mnt/etc/nixos
