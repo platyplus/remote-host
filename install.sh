@@ -41,18 +41,16 @@ mv NixOS-master/.gitignore /mnt/etc/nixos
 # rmdir NixOS-master
 cp /mnt/etc/nixos/settings.nix.template /mnt/etc/nixos/settings.nix
 
-# Find a stable device name for grub and append it to the settings file for copy/paste:
-# TODO
-ls -l /dev/disk/by-id/ | grep "wwn.*<device>$" | tee -a /mnt/etc/nixos/settings.nix
-# Then you can add the path to the grub.device setting.
-
 # Set the required settings:
 # nano /mnt/etc/nixos/settings.nix
 # TODO check hostname availability against the Cloud API
 NEW_HOSTNAME="testname" # TODO prompt
 sed -i -e 's/{{hostname}}/'"$NEW_HOSTNAME"'/g' /mnt/etc/nixos/settings.nix
 
-sed -i -e 's/{{device}}/'"${TGTDEV//\//\\/}"'/g' /mnt/etc/nixos/settings.nix
+# Find a stable device name for grub and append it to the settings file for copy/paste:
+# Then you can add the path to the grub.device setting.
+DEVICEID=`ls -l /dev/ | grep "${TGTDEV##*/}$" | awk '{print $9}'`
+sed -i -e 's/{{device}}/'"${DEVICEID//\//\\/}"'/g' /mnt/etc/nixos/settings.nix
 
 TIMEZONE="Europe/Brussels" # TODO prompt
 sed -i -e 's/{{timezone}}/'"${TIMEZONE//\//\\/}"'/g' /mnt/etc/nixos/settings.nix
