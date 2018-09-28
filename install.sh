@@ -52,10 +52,10 @@ ls -l /dev/disk/by-id/ | grep "wwn.*<device>$" | tee -a /mnt/etc/nixos/settings.
 NEW_HOSTNAME="testname" # TODO prompt
 sed -i -e 's/{{hostname}}/'"$NEW_HOSTNAME"'/g' /mnt/etc/nixos/settings.nix
 
-sed -i -e 's/{{device}}/'"$TGTDEV"'/g' /mnt/etc/nixos/settings.nix
+sed -i -e 's/{{device}}/'"${TGTDEV//\//\\/}"'/g' /mnt/etc/nixos/settings.nix
 
 TIMEZONE="Europe/Brussels" # TODO prompt
-sed -i -e 's/{{timezone}}/'"$TIMEZONE"'/g' /mnt/etc/nixos/settings.nix
+sed -i -e 's/{{timezone}}/'"${TIMEZONE//\//\\/}"'/g' /mnt/etc/nixos/settings.nix
 # TODO get tunnel port from the Cloud API
 TUNNELPORT=10001 # TODO prompt
 sed -i -e 's/{{tunnelport}}/'"$TUNNELPORT"'/g' /mnt/etc/nixos/settings.nix
