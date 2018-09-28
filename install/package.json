@@ -6,7 +6,13 @@
   "cpu" : [ "x64" ],
   "os" : [ "darwin", "linux" ], 
   "scripts": {
-    "build": "nexe install.js -t linux-x86-10.7.0 --build"
+    "build": "nexe install.js -t linux-x64-10.7.0 --build"
+  },
+  "pkg": {
+    "targets": [
+      "node10-linux-x86",
+      "node10-linux-x64"
+    ]
   },
   "author": "Pierre-Louis Mercereau",
   "license": "ISC"
