@@ -13,6 +13,9 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
   2 # partion number 2
     # default, start immediately after preceding partition
     # default, extend partition to end of disk
+  t # change type of partition
+  2 # select partition number 2
+  8e # select LVM type
   p # print the in-memory partition table
   w # write the partition table
   q # and we're done
