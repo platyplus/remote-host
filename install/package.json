@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "Script for standard installation of NixOS remote instances",
   "bin": "install.js",
+  "cpu" : [ "x64" ],
+  "os" : [ "darwin", "linux" ], 
+  "scripts": {
+    "build": "nexe install.js -t linux-x86-10.7.0 --build"
+  },
   "author": "Pierre-Louis Mercereau",
-  "license": "ISC",
-  "devDependencies": {
-    "pkg": "^4.3.4"
-  }
+  "license": "ISC"
 }
