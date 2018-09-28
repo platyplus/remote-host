@@ -24,7 +24,7 @@ EOF
   # 1 # bootable partition is partition 1 -- /dev/sda1
 
 # Create the LVM volumes
-pvcreate ${TGTDEV}2
+pvcreate ${TGTDEV}2 -ff
 vgcreate LVMVolGroup ${TGTDEV}2
 lvcreate -l 100%FREE -n nixos_root LVMVolGroup
 # Format the partitions
