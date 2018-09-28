@@ -5,8 +5,8 @@
   "bin": "install.js",
   "pkg": {
     "targets": [
-      "node10-linux-x86_64",
-      "node10-alpine-x86_64"
+      "node8-linux-x86_64",
+      "node8-alpine-x86_64"
     ]
   },
   "author": "Pierre-Louis Mercereau",
