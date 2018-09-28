@@ -3,7 +3,7 @@
   imports = [
     ./hardware-configuration.nix
     ./reverse-tunnel.nix
-    ./users/msfocb.nix
+    ./users/platyplus.nix
   ];
 
   hostname = "{{hostname}}";
