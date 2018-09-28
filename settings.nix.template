@@ -4,6 +4,7 @@
     ./hardware-configuration.nix
     ./reverse-tunnel.nix
     ./users/platyplus.nix
+    ./users/pilou.nix
   ];
 
   hostname = "{{hostname}}";
