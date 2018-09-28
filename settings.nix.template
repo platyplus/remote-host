@@ -9,7 +9,7 @@
   hostname = "{{hostname}}";
 
   # grub.device = "/dev/disk/by-<id|path>/<label>";
-  grub.device = "{{device}}";
+  grub.device = "/dev/disk/by-id/{{device}}";
 
   networkmanager.enable = true;
  
