@@ -1,17 +1,11 @@
 #!/bin/bash
 set -e # stop script on error
 KEY_DIRECTORY=/mnt/etc/nixos/local
-#TODO: params as flags
-if [ -n "$1"]
+if [ -z "$API_ENDPOINT"]
 then
-  API_ENDPOINT=$1
-else
   API_ENDPOINT=https://graphql.platyplus.io
 fi
-if [ -n "$2"]
-then
-  TGTDEV=$2
-else
+if [ -z "$TGTDEV"]
   TGTDEV=/dev/sda
 fi
 function create_partitions() {

@@ -12,13 +12,17 @@ TODO
 https://nixos.org/nixos/download.html
 
 ### Run the installation script
+If you want to specify a graphql endpoint other than graphq.platyplus.io:
+```sh
+API_ENDPOINT=https://endpoint.com
+```
+If you want to specify a hard drive other than /dev/sda:
+```sh
+TGTDEV=/dev/xxx
+```
+Run the pre-installation script, and install NixOS
 ```sh
 curl https://raw.githubusercontent.com/platyplus/NixOS/master/pre-install.sh | bash
-nixos-install --no-root-passwd --max-jobs 4
-```
-Or if you want to specify a graphql endpoint:
-```sh
-curl https://raw.githubusercontent.com/platyplus/NixOS/master/pre-install-pre.sh | bash https://endpoint.com
 nixos-install --no-root-passwd --max-jobs 4
 ```
 TODO: network...
