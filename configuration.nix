@@ -57,6 +57,7 @@
       bind
       nix-info
       nox
+      jq
     ];
     # See https://nixos.org/nix/manual/#ssec-values for documentation on escaping ${
     shellInit = ''
@@ -91,7 +92,7 @@
       # efiSupport = true;
       # efiInstallAsRemovable = true;
       # boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
-      device = (import ./settings.nix).grub.device;
+      device = (import ./settings-hardware.nix).grub.device;
       memtest86.enable = true;
     };
     # boot.loader.efi.efiSysMountPoint = "/boot/efi";

@@ -1,0 +1,5 @@
+{
+  # grub.device = "/dev/disk/by-<id|path>/<label>";
+  grub.device = "/dev/disk/by-id/{{device}}";
+}
+

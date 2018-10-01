@@ -13,9 +13,16 @@ https://nixos.org/nixos/download.html
 
 ### Run the installation script
 ```sh
-curl https://raw.githubusercontent.com/platyplus/NixOS/master/install.sh | sh
+curl https://raw.githubusercontent.com/platyplus/NixOS/master/install.sh | bash
 ```
-TODO ip, hostname, tunnel...
+Or if you want to specify a graphql endpoint:
+```sh
+curl https://raw.githubusercontent.com/platyplus/NixOS/master/install.sh | bash https://endpoint.com
+```
+TODO network...
+```sh
+nixos-install --no-root-passwd --max-jobs 4
+```
 ### Remove the USB key and reboot the system
 
 ### Run the post-installation script

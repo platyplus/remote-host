@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -e # stop script on error
 # TODO
 
 # First check that we are on the correct nix channel
