@@ -20,7 +20,7 @@ export TGTDEV=/dev/xxx
 ```
 Run the pre-installation script, and install NixOS
 ```sh
-curl https://raw.githubusercontent.com/platyplus/NixOS/master/pre-install.sh | bash
+curl https://raw.githubusercontent.com/platyplus/remote-host/master/pre-install.sh | bash
 nixos-install --no-root-passwd --max-jobs 4
 ```
 > TODO: network...

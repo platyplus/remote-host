@@ -23,7 +23,7 @@ sudo nixos-rebuild switch --upgrade
 # Finally, we will turn `/etc/nixos` into a git clone of this repository
 cd /etc/nixos
 git init
-git remote add origin https://github.com/platyplus/NixOS
+git remote add origin https://github.com/platyplus/remote-host
 git fetch
 git checkout --force --track origin/master  # Force to overwrite local files
 git pull --rebase
