@@ -1,11 +1,12 @@
 #!/bin/bash
 set -e # stop script on error
-KEY_DIRECTORY=/mnt/etc/nixos/local
+CONFIG_DIRECTORY=/mnt/etc/nixos
 if [ -z "$API_ENDPOINT"]
 then
   API_ENDPOINT=https://graphql.platyplus.io
 fi
 if [ -z "$TGTDEV"]
+then
   TGTDEV=/dev/sda
 fi
 function create_partitions() {
@@ -46,16 +47,16 @@ function prepare_os() {
   curl -L https://github.com/platyplus/NixOS/archive/master.zip --output /tmp/config.zip
   cd /tmp
   unzip config.zip
-  mv NixOS-master/* /mnt/etc/nixos
-  mv NixOS-master/.gitignore /mnt/etc/nixos
+  mv NixOS-master/* "$CONFIG_DIRECTORY"
+  mv NixOS-master/.gitignore "$CONFIG_DIRECTORY"
 
   # Local settings: settings that are dependent to the hardware and therefore that
   # are not required to store on the cloud server if we need to reinstall on new hardware
-  cp /mnt/etc/nixos/settings-hardware.nix.template /mnt/etc/nixos/settings-hardware.nix
+  cp "$CONFIG_DIRECTORY/settings-hardware.nix.template" "$CONFIG_DIRECTORY/settings-hardware.nix"
 
   # Find a stable device name for grub and set it in the configuration
   DEVICEID=`ls -l /dev/disk/by-id/ | grep "${TGTDEV##*/}$" | awk '{print $9}'`
-  sed -i -e 's/{{device}}/'"${DEVICEID//\//\\/}"'/g' /mnt/etc/nixos/settings-hardware.nix
+  sed -i -e 's/{{device}}/'"${DEVICEID//\//\\/}"'/g' "$CONFIG_DIRECTORY/settings-hardware.nix"
 
   # Install the programms required to run the script
   nix-env -iA nixos.jq
@@ -149,7 +150,7 @@ function create_service_account() {
         then
             echo "Should not be empty!"
         fi
-        ROLE`graphql_query users 'login:\"tunnel@'"$NEW_HOSTNAME"'\"' "{ role }" | jq '.data.users[0].role'`
+        ROLE=`graphql_query users 'login:\"tunnel@'"$NEW_HOSTNAME"'\"' "{ role }" | jq '.data.users[0].role'`
         if [ -z "$ROLE" ] || [ "$ROLE" == 'null' ]
         then
             MODE=CREATE
@@ -172,8 +173,8 @@ function create_service_account() {
     done
     if [[ "$MODE" != '' ]]
     then
-        ssh-keygen -a 100 -t ed25519 -N "" -C "tunnel@${NEW_HOSTNAME}" -f "$KEY_DIRECTORY/id_tunnel"
-        PUBLIC_KEY=`cat "$KEY_DIRECTORY/id_tunnel.pub"`
+        ssh-keygen -a 100 -t ed25519 -N "" -C "tunnel@${NEW_HOSTNAME}" -f "$CONFIG_DIRECTORY/local/id_tunnel"
+        PUBLIC_KEY=`cat "$CONFIG_DIRECTORY/local/id_tunnel.pub"`
         PASSWORD=1234 # TODO autogenerate? Where and how to store it?
         if [[ "$MODE" == "CREATE" ]]
         then
@@ -198,28 +199,33 @@ function create_service_account() {
         TOKEN_SERVICE=${TOKEN_SERVICE:1:${#TOKEN_SERVICE}-2}
         echo $TOKEN_SERVICE
     fi
-    unset TOKEN NEW_HOSTNAME PASSWORD PUBLIC_KEY TIMEZONE ROLE DATA
+    unset TOKEN PUBLIC_KEY TIMEZONE ROLE DATA
 }
 
 function update_nix_settings_file() {
     TOKEN=$TOKEN_SERVICE
-    # TODO: handle errors
-    DATA=`graphql_query hostSettings 'login:\"'"$LOGIN"'\"' | jq '.data.hostSettings'`
-    DATA=`echo ${DATA:1:${#DATA}-2} | base64 -D`
-    echo "$DATA" > /mnt/etc/nixos/settings.nix
+    DATA=`graphql_query hostSettings 'login:\"tunnel@'"$NEW_HOSTNAME"'\"' | jq '.data.hostSettings'`
+    if [ -z "$DATA" ] || [ "$DATA" == 'null' ]
+    then
+        # TODO: handle errors
+        echo "error"
+    else
+        DATA=`echo ${DATA:1:${#DATA}-2} | base64 -D`
+        echo "$DATA" > "$CONFIG_DIRECTORY/settings.nix"
+    fi
     unset TOKEN DATA
 }
 
 # TODO:Network configuration
 function update_nix_network_file() {
     TOKEN=$TOKEN_SERVICE
-    # cp /mnt/etc/nixos/static-network.nix.template /mnt/etc/nixos/static-network.nix
+    # cp "$CONFIG_DIRECTORY/static-network.nix.template" "$CONFIG_DIRECTORY/static-network.nix"
     # INTERFACE=`ip route | grep default | awk '{print $5}'` # TODO prompt - eth0?
-    # sed -i -e 's/{{interface}}/'"$INTERFACE"'/g' /mnt/etc/nixos/static-network.nix
+    # sed -i -e 's/{{interface}}/'"$INTERFACE"'/g' "$CONFIG_DIRECTORY/static-network.nix"
     # ADDRESS=`ip route | grep default | awk '{print $7}'` # TODO prompt
-    # sed -i -e 's/{{address}}/'"$ADDRESS"'/g' /mnt/etc/nixos/static-network.nix
+    # sed -i -e 's/{{address}}/'"$ADDRESS"'/g' "$CONFIG_DIRECTORY/static-network.nix"
     # GATEWAY=`ip route | grep default | awk '{print $3}'` # TODO prompt
-    # sed -i -e 's/{{gateway}}/'"$GATEWAY"'/g' /mnt/etc/nixos/static-network.nix
+    # sed -i -e 's/{{gateway}}/'"$GATEWAY"'/g' "$CONFIG_DIRECTORY/static-network.nix"
     unset TOKEN
 }
 
@@ -227,6 +233,12 @@ function set_network() {
     # TODO
     TOKEN=$TOKEN_SERVICE
 }
+
+# TEST VALUES
+# API_ENDPOINT=localhost:5000
+# LOGIN=pilou@pilou.com
+# PASSWORD=nooneknows
+# CONFIG_DIRECTORY=/tmp
 
 create_partitions
 prepare_os
