@@ -87,7 +87,7 @@ function graphql_mutation() {
 }
 
 function mutation_upsert_host() {
-    graphql_mutation upsertHost 'login:\"'"$1"'\", name:\"'"$2"'\", password: \"'"$3"'\", publicKey: \"'"$5"'\", timeZone: \"'"$6"'\"' 'token'
+    graphql_mutation upsertHost 'login:\"'"$1"'\", name:\"'"$2"'\", password: \"'"$3"'\", publicKey: \"'"$4"'\", timeZone: \"'"$5"'\"' 'token'
 }
 
 function mutation_login() {
