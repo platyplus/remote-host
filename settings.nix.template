@@ -9,9 +9,6 @@
 
   hostname = "{{hostname}}";
 
-  # grub.device = "/dev/disk/by-<id|path>/<label>";
-  grub.device = "/dev/disk/by-id/{{device}}";
-
   networkmanager.enable = true;
  
   # Timezone of the location where the server will be deployed

@@ -86,13 +86,8 @@ function graphql_mutation() {
     fi
 }
 
-function mutation_create_user() {
-    graphql_mutation createUser 'login:\"'"$1"'\", name:\"'"$2"'\", password: \"'"$3"'\", role: '"$4"', publicKey: \"'"$5"'\", timeZone: \"'"$6"'\"' 'token'
-}
-
-function mutation_update_user() {
-    ##### TODO: #########
-    echo "{}"
+function mutation_upsert_host() {
+    graphql_mutation upsertHost 'login:\"'"$1"'\", name:\"'"$2"'\", password: \"'"$3"'\", publicKey: \"'"$5"'\", timeZone: \"'"$6"'\"' 'token'
 }
 
 function mutation_login() {
@@ -183,13 +178,12 @@ function create_service_account() {
             then
                 TIMEZONE="Europe/Brussels"
             fi
-            DATA=`mutation_create_user "tunnel@$NEW_HOSTNAME" "$NEW_HOSTNAME" "$PASSWORD" "HOST_SERVICE" "$PUBLIC_KEY" "$TIMEZONE"`
-            TOKEN_SERVICE=`echo "$DATA" | jq '.data.createUser.token'`
         elif [[ "$MODE" == "UPDATE" ]]
         then
-            DATA=`mutation_update_user "tunnel@$NEW_HOSTNAME" "$NEW_HOSTNAME" "$PASSWORD" "HOST_SERVICE" "$PUBLIC_KEY"`
-            TOKEN_SERVICE=`echo "$DATA" | jq '.data.updateUser.token'`
+            echo "TODO: update mode"
         fi
+        DATA=`mutation_upsert_host "tunnel@$NEW_HOSTNAME" "$NEW_HOSTNAME" "$PASSWORD" "$PUBLIC_KEY" "$TIMEZONE"`
+        TOKEN_SERVICE=`echo "$DATA" | jq '.data.upsertHost.token'`
         if [ -z "$TOKEN_SERVICE" ] || [ "$TOKEN_SERVICE" == 'null' ]
         then
             echo "Error in updating the configuration"
