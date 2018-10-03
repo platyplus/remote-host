@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e # stop script on error
 CONFIG_DIRECTORY=/mnt/etc/nixos
-if [ -z "$API_ENDPOINT"]
+if [ -z "$API_ENDPOINT" ]
 then
   API_ENDPOINT=https://graphql.platyplus.io
 fi
-if [ -z "$TGTDEV"]
+if [ -z "$TGTDEV" ]
 then
   TGTDEV=/dev/sda
 fi
@@ -204,28 +204,22 @@ function update_nix_settings_file() {
         # TODO: handle errors
         echo "error"
     else
-        DATA=`echo ${DATA:1:${#DATA}-2} | base64 -D`
+        DATA=`echo ${DATA:1:${#DATA}-2} | base64 --decode`
         echo "$DATA" > "$CONFIG_DIRECTORY/settings.nix"
     fi
     unset TOKEN DATA
 }
 
-# TODO:Network configuration
 function update_nix_network_file() {
     TOKEN=$TOKEN_SERVICE
-    # cp "$CONFIG_DIRECTORY/static-network.nix.template" "$CONFIG_DIRECTORY/static-network.nix"
-    # INTERFACE=`ip route | grep default | awk '{print $5}'` # TODO prompt - eth0?
-    # sed -i -e 's/{{interface}}/'"$INTERFACE"'/g' "$CONFIG_DIRECTORY/static-network.nix"
-    # ADDRESS=`ip route | grep default | awk '{print $7}'` # TODO prompt
-    # sed -i -e 's/{{address}}/'"$ADDRESS"'/g' "$CONFIG_DIRECTORY/static-network.nix"
-    # GATEWAY=`ip route | grep default | awk '{print $3}'` # TODO prompt
-    # sed -i -e 's/{{gateway}}/'"$GATEWAY"'/g' "$CONFIG_DIRECTORY/static-network.nix"
+    cp "$CONFIG_DIRECTORY/static-network.nix.template" "$CONFIG_DIRECTORY/static-network.nix"
+    INTERFACE=`ip route | grep default | awk '{print $5}'` # TODO prompt - eth0?
+    sed -i -e 's/{{interface}}/'"$INTERFACE"'/g' "$CONFIG_DIRECTORY/static-network.nix"
+    ADDRESS=`ip route | grep default | awk '{print $7}'` # TODO prompt
+    sed -i -e 's/{{address}}/'"$ADDRESS"'/g' "$CONFIG_DIRECTORY/static-network.nix"
+    GATEWAY=`ip route | grep default | awk '{print $3}'` # TODO prompt
+    sed -i -e 's/{{gateway}}/'"$GATEWAY"'/g' "$CONFIG_DIRECTORY/static-network.nix"
     unset TOKEN
-}
-
-function set_network() {
-    # TODO
-    TOKEN=$TOKEN_SERVICE
 }
 
 # TEST VALUES
@@ -239,7 +233,9 @@ prepare_os
 auth_admin
 create_service_account
 update_nix_settings_file
-# TODO: update_nix_network_file
+update_nix_network_file
 # TODO: nixos-install --no-root-passwd --max-jobs 4
 
 echo "IP address: $ADDRESS"
+echo "IP address: $ADDRESS" >> "$CONFIG_DIRECTORY/../issue"
+echo "You may now install NixOS in running the command: nixos-install --no-root-passwd --max-jobs 4"

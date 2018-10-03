@@ -12,11 +12,11 @@ https://nixos.org/nixos/download.html
 
 If you want to specify a graphql endpoint other than `https://graphql.platyplus.io`:
 ```sh
-API_ENDPOINT=https://endpoint.com
+export API_ENDPOINT=https://endpoint.com
 ```
 If you want to specify a hard drive other than /dev/sda:
 ```sh
-TGTDEV=/dev/xxx
+export TGTDEV=/dev/xxx
 ```
 Run the pre-installation script, and install NixOS
 ```sh
