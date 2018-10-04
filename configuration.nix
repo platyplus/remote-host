@@ -58,6 +58,7 @@
       nix-info
       nox
       jq
+      openssl
     ];
     # See https://nixos.org/nix/manual/#ssec-values for documentation on escaping ${
     shellInit = ''
