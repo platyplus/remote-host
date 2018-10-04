@@ -18,6 +18,7 @@
 
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "whatIsMyIp" ''
+            echo ${(import ./settings.nix).hostname}
             ${pkgs.curl}/bin/curl http://httpbin.org/get \
             | ${pkgs.jq}/bin/jq --raw-output .origin
         '')
