@@ -13,6 +13,7 @@
 {
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "update-nixos-configuration" ''
+            date
             echo start
             cd /etc/nixos
             echo 1
