@@ -20,14 +20,15 @@
         (pkgs.writeShellScriptBin "update-nixos-configuration" ''
             cd /etc/nixos
             if [ ! -d .git ]; then
-                ${pkgs.git} init .
-                ${pkgs.git} remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
+                ${pkgs.bin}/bin/git init .
+                ${pkgs.bin}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
             fi
-            ${pkgs.git} fetch
-            if [[ $(git rev-parse HEAD) != $(git rev-parse @{u}) ]]; then
-                ${pkgs.git} reset --hard HEAD
-                ${pkgs.git} checkout --force --track origin/master  # Force to overwrite local files
-                ${pkgs.git} pull --rebase
+            ${pkgs.bin}/bin/git fetch
+            echo "ici"
+            if [[ $(${pkgs.bin}/bin/git rev-parse HEAD) != $(${pkgs.bin}/bin/git rev-parse @{u}) ]]; then
+                ${pkgs.bin}/bin/git reset --hard HEAD
+                ${pkgs.bin}/bin/git checkout --force --track origin/master  # Force to overwrite local files
+                ${pkgs.bin}/bin/git pull --rebase
                 nixos-rebuild switch --upgrade
             fi
         '')
