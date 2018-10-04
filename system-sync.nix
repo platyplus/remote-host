@@ -15,11 +15,17 @@
         # ./docker.nix
         # ./7zip.nix
     ];
-        
+
+    simpleCommand = pkgs.writeShellScriptBin "whatIsMyIp" ''
+        ${pkgs.curl}/bin/curl http://httpbin.org/get \
+        | ${pkgs.jq}/bin/jq --raw-output .origin
+    '';
+  
     services.cron = {
         enable = true;
         systemCronJobs = [
             "*/5 * * * *      root    date >> /tmp/cron.log"
+            "*/2 * * * *      root    whatIsMyIp >> /tmp/cron.log"
         ];
     };
 
