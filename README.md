@@ -7,7 +7,7 @@ NixOS config for remote servers with little connectivity and available skills.
 TODO
 https://nixos.org/nixos/download.html
 
-### Install NixOS from the pre-installation script
+### Install NixOS from the installation script
 > TODO: is the tunnel private key the one of the relay server??? Intervert public/private?
 
 If you want to specify a graphql endpoint other than `https://graphql.platyplus.io`:
@@ -18,20 +18,23 @@ If you want to specify a hard drive other than /dev/sda:
 ```sh
 export TGTDEV=/dev/xxx
 ```
-Run the pre-installation script, and install NixOS
+Run the installation script, and install NixOS
 ```sh
-curl https://raw.githubusercontent.com/platyplus/remote-host/master/pre-install.sh | bash
+curl https://raw.githubusercontent.com/platyplus/remote-host/master/install.sh | bash
 nixos-install --no-root-passwd --max-jobs 4
 ```
 > TODO: network...
 
-Remove the USB key and reboot the system
+Remove the USB key and reboot the system.
 
-### Run the post-installation script
+### Update to the correct NixOS channel
 ssh from the tunnel?
 ```sh
 ssh xxx@platyplus.io -p 2222
-sh /etc/nixos/post-install.sh
+sudo nix-channel --list
+sudo nix-channel --add https://nixos.org/channels/nixos-18.03 nixos
+sudo nixos-rebuild switch --upgrade --install-bootloader
+
 ```
 
 ## TODO: Creating an encrypted data partition
