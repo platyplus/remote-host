@@ -13,29 +13,17 @@
 {
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "update-nixos-configuration" ''
-            date
-            echo start
             cd /etc/nixos
-            echo 1
             if [ ! -d .git ]; then
-                echo 2
                 ${pkgs.git}/bin/git init .
-                echo 3
                 ${pkgs.git}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
             fi
-            echo 4
             ${pkgs.git}/bin/git fetch
-            echo 5
             if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
-                echo 6
                 ${pkgs.git}/bin/git reset --hard HEAD
-                echo 7
                 ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
-                echo 8
                 ${pkgs.git}/bin/git pull --rebase
-                echo "git finished"
                 nixos-rebuild switch --upgrade
-                echo "rebuild finished"
             fi
         '')
     ];
