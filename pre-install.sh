@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e # stop script on error
 CONFIG_DIRECTORY=/mnt/etc/nixos
+GITHUB_REPO=platyplus/remote-host
 [ -z "$API_ENDPOINT" ] && API_ENDPOINT=https://graphql.platyplus.io
 [ -z "$TGTDEV" ] && TGTDEV=/dev/sda
 
@@ -39,7 +40,7 @@ function prepare_os() {
   mkdir /mnt/boot
   mount /dev/disk/by-label/nixos_boot /mnt/boot
   nixos-generate-config --root /mnt
-  curl -L https://github.com/platyplus/remote-host/archive/master.zip --output /tmp/config.zip
+  curl -L "https://github.com/$GITHUB_REPO/archive/master.zip" --output /tmp/config.zip
   cd /tmp
   unzip config.zip
   mv NixOS-master/* "$CONFIG_DIRECTORY"
