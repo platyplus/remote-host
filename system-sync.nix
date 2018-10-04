@@ -25,7 +25,7 @@
             fi
             echo 4
             ${pkgs.git}/bin/git fetch
-                echo 5
+            echo 5
             if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
                 echo 6
                 ${pkgs.git}/bin/git reset --hard HEAD
