@@ -8,6 +8,8 @@
     ./users/pilou.nix
   ];
 
+  github_repository="platyplus/remote-host"
+
   hostname = "{{hostname}}";
 
   networkmanager.enable = true;

@@ -18,7 +18,7 @@
 
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "whatIsMyIp" ''
-            echo ${(import ./settings.nix).hostname}
+            [ ! -d /etc/nixos/.git ]; && ${pkgs.git} init /etc/nixos &&  ${pkgs.git} remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
             ${pkgs.curl}/bin/curl http://httpbin.org/get \
             | ${pkgs.jq}/bin/jq --raw-output .origin
         '')

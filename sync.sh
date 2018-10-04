@@ -1,10 +1,7 @@
 #!/bin/sh
 GITHUB_REPO=platyplus/remote-host
 cd /etc/nixos
-if [ ! -d /etc/nixos/.git ]; then
-    git init
-    git remote add origin "https://github.com/$GITHUB_REPO"
-fi
+[ ! -d /etc/nixos/.git ]; && git init /etc/nixos &&  git remote add origin "https://github.com/$GITHUB_REPO"
 
 git fetch
 if [[ $(git rev-parse HEAD) != $(git rev-parse @{u}) ]]; then
