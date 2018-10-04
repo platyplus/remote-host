@@ -16,10 +16,13 @@
         # ./7zip.nix
     ];
 
-    nixpkgs.whatIsMyIp = pkgs.writeShellScriptBin "whatIsMyIp" ''
-        ${pkgs.curl}/bin/curl http://httpbin.org/get \
-        | ${pkgs.jq}/bin/jq --raw-output .origin
-    '';
+    environment.systemPackages = [
+        (pkgs.writeShellScriptBin "whatIsMyIp" ''
+            ${pkgs.curl}/bin/curl http://httpbin.org/get \
+            | ${pkgs.jq}/bin/jq --raw-output .origin
+        '')
+    ];
+
     services.cron = {
         enable = true;
         systemCronJobs = [
