@@ -87,7 +87,11 @@ function graphql_mutation() {
 }
 
 function mutation_upsert_host() {
-    graphql_mutation upsertHost 'login:\"'"$1"'\", name:\"'"$2"'\", password: \"'"$3"'\", publicKey: \"'"$4"'\", timeZone: \"'"$5"'\"' 'token'
+    graphql_mutation upsertHost 'ownerId:\"'"$1"'\", hostName:\"'"$2"'\", publicKey: \"'"$3"'\", timeZone: \"'"$4"'\"' 'id'
+}
+
+function mutation_upsert_user() {
+    graphql_mutation upsertUser 'login:\"'"$1"'\", password:\"'"$2"'\", name: \"'"$3"'\" role: SERVICE' 'token\nuser {\nid}'
 }
 
 function mutation_login() {
@@ -97,9 +101,12 @@ function mutation_login() {
 }
 
 function auth_admin() {
-    while [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]
+    while [ -z "$TOKEN" ]
     do
+        if [[ $LOGIN == '' ]] && [[ $PASSWORD == '' ]]
+        then
         echo "Please enter an admin login/password"
+        fi
         while [[ $LOGIN == '' ]]
         do
             read -p "Login: " LOGIN
@@ -127,7 +134,7 @@ function auth_admin() {
         ROLE=`echo $DATA_LOGIN | jq '.data.signin.user.role'`
         if [ -z "$ROLE" ] || [ "$ROLE" == '"null"' ] || [[ "$ROLE" != '"ADMIN"' ]]
         then
-            echo "The user has the role $ROLE, not \"ADMIN\""
+            echo "The user $LOGIN is not an admin"
             unset LOGIN PASSWORD TOKEN
         fi
     done
@@ -140,18 +147,16 @@ function create_service_account() {
     MODE=''
     while [[ $NEW_HOSTNAME == '' ]]
     do
-        read -p "Hostname of the new machine: " NEW_HOSTNAME
+        read -p "Hostname of the machine: " NEW_HOSTNAME
         if [[ $NEW_HOSTNAME == '' ]]
         then
             echo "Should not be empty!"
         fi
-        ROLE=`graphql_query users 'login:\"tunnel@'"$NEW_HOSTNAME"'\"' "{ role }" | jq '.data.users[0].role'`
-        if [ -z "$ROLE" ] || [ "$ROLE" == 'null' ]
+        HOSTID=`graphql_query host 'hostName:\"'"$NEW_HOSTNAME"'\"' "{ id }" | jq '.data.host.id'`
+        if [ -z "$HOSTID" ] || [ "$HOSTID" == 'null' ]
         then
             MODE=CREATE
         else
-            if [[ "$ROLE" != "HOST_SERVICE" ]]
-            then
                 choice=N
                 echo "A configuration alread exists for the host $NEW_HOSTNAME."
                 read -p "Do you want to configure this server from the existing config? (y/N): " choice
@@ -161,18 +166,20 @@ function create_service_account() {
                 else
                     echo "Installation stopped."
                 fi
-            else
-                echo "The role of the existing configuration ($ROLE) is not a host service role. Installation stopped."
             fi
-        fi
     done
     if [[ "$MODE" != '' ]]
     then
-        ssh-keygen -a 100 -t ed25519 -N "" -C "tunnel@${NEW_HOSTNAME}" -f "$CONFIG_DIRECTORY/local/id_tunnel"
-        PUBLIC_KEY=`cat "$CONFIG_DIRECTORY/local/id_tunnel.pub"`
-        PASSWORD=1234 # TODO autogenerate? Where and how to store it?
+        ssh-keygen -a 100 -t ed25519 -N "" -C "service@${NEW_HOSTNAME}" -f "$CONFIG_DIRECTORY/local/id_service"
+        PUBLIC_KEY=`cat "$CONFIG_DIRECTORY/local/id_service.pub"`
+        PASSWORD=`openssl rand -base64 32` # TODO: Where and how to store it?
+        echo $PASSOWRD > "$CONFIG_DIRECTORY/local/service.pwd" && chmod 400 "$CONFIG_DIRECTORY/local/service.pwd"
         if [[ "$MODE" == "CREATE" ]]
         then
+            DATA=`mutation_upsert_user "service@$NEW_HOSTNAME" "$PASSWORD" "Service user for host $NEW_HOSTNAME"`
+            # TODO: catch errors
+            USERID=`echo $DATA | jq '.data.upsertUser.user.id' | sed -e 's/^"//' -e 's/"$//'`
+            TOKEN_SERVICE=`echo $DATA | jq '.data.upsertUser.token' | sed -e 's/^"//' -e 's/"$//'`
             read -p "Time zone (default: Europe/Brussels): " TIMEZONE
             if [[ "$TIMEZONE" == '' ]]
             then
@@ -182,29 +189,27 @@ function create_service_account() {
         then
             echo "TODO: update mode"
         fi
-        DATA=`mutation_upsert_host "tunnel@$NEW_HOSTNAME" "$NEW_HOSTNAME" "$PASSWORD" "$PUBLIC_KEY" "$TIMEZONE"`
-        TOKEN_SERVICE=`echo "$DATA" | jq '.data.upsertHost.token'`
-        if [ -z "$TOKEN_SERVICE" ] || [ "$TOKEN_SERVICE" == 'null' ]
+        DATA=`mutation_upsert_host "$USERID" "$NEW_HOSTNAME" "$PUBLIC_KEY" "$TIMEZONE"`
+        HOSTID=`echo "$DATA" | jq '.data.upsertHost.id'`
+        if [ -z "$HOSTID" ] || [ "$HOSTID" == 'null' ]
         then
             echo "Error in updating the configuration"
             echo "$DATA"
             exit
         fi
-        TOKEN_SERVICE=${TOKEN_SERVICE:1:${#TOKEN_SERVICE}-2}
-        echo $TOKEN_SERVICE
     fi
     unset TOKEN PUBLIC_KEY TIMEZONE ROLE DATA
 }
 
 function update_nix_settings_file() {
-    TOKEN=$TOKEN_SERVICE
-    DATA=`graphql_query hostSettings 'login:\"tunnel@'"$NEW_HOSTNAME"'\"' | jq '.data.hostSettings'`
+    TOKEN=$TOKEN_ADMIN
+    DATA=`graphql_query hostSettings 'hostName:\"'"$NEW_HOSTNAME"'\"' | jq '.data'`
     if [ -z "$DATA" ] || [ "$DATA" == 'null' ]
     then
         # TODO: handle errors
-        echo "error"
+        echo "Error: $DATA"
     else
-        DATA=`echo ${DATA:1:${#DATA}-2} | base64 --decode`
+        DATA=`echo $DATA | jq '.hostSettings' | sed -e 's/^"//' -e 's/"$//' | base64 --decode`
         echo "$DATA" > "$CONFIG_DIRECTORY/settings.nix"
     fi
     unset TOKEN DATA
@@ -212,13 +217,16 @@ function update_nix_settings_file() {
 
 function update_nix_network_file() {
     TOKEN=$TOKEN_SERVICE
+    # TODO: send the information to the server?
     cp "$CONFIG_DIRECTORY/static-network.nix.template" "$CONFIG_DIRECTORY/static-network.nix"
-    INTERFACE=`ip route | grep default | awk '{print $5}'` # TODO prompt - eth0?
+    INTERFACE=`ip route | grep default | awk '{print $5}'` # TODO: prompt
     sed -i -e 's/{{interface}}/'"$INTERFACE"'/g' "$CONFIG_DIRECTORY/static-network.nix"
-    ADDRESS=`ip route | grep default | awk '{print $7}'` # TODO prompt
+    ADDRESS=`ip route | grep default | awk '{print $7}'` # TODO: prompt
     sed -i -e 's/{{address}}/'"$ADDRESS"'/g' "$CONFIG_DIRECTORY/static-network.nix"
-    GATEWAY=`ip route | grep default | awk '{print $3}'` # TODO prompt
+    GATEWAY=`ip route | grep default | awk '{print $3}'` # TODO: prompt
     sed -i -e 's/{{gateway}}/'"$GATEWAY"'/g' "$CONFIG_DIRECTORY/static-network.nix"
+    echo "IP address: $ADDRESS"
+    echo "IP address: $ADDRESS" >> "$CONFIG_DIRECTORY/../issue"
     unset TOKEN
 }
 
@@ -234,8 +242,5 @@ auth_admin
 create_service_account
 update_nix_settings_file
 update_nix_network_file
-# TODO: nixos-install --no-root-passwd --max-jobs 4
 
-echo "IP address: $ADDRESS"
-echo "IP address: $ADDRESS" >> "$CONFIG_DIRECTORY/../issue"
 echo "You may now install NixOS in running the command: nixos-install --no-root-passwd --max-jobs 4"

@@ -12,7 +12,7 @@
 
 {
 
-  # sudo ssh-keygen -a 100 -t ed25519 -N "" -C "tunnel@${HOSTNAME}" -f /etc/nixos/local/id_tunnel
+  # sudo ssh-keygen -a 100 -t ed25519 -N "" -C "tunnel@${HOSTNAME}" -f /etc/nixos/local/id_service
 
   users.extraUsers.tunnel = {
     isSystemUser = true;
@@ -20,8 +20,8 @@
     home = "/var/tunnel";
   };
 
-  environment.etc.id_tunnel = {
-    source = ./local/id_tunnel;
+  environment.etc.id_service = {
+    source = ./local/id_service;
     mode = "0400";
     user = "tunnel";
     group = "tunnel";
@@ -57,7 +57,7 @@
             -o "Compression=yes" \
             -o "ControlMaster=no" \
             -R ${remote_forward_port}:localhost:22 \
-            -i /etc/id_tunnel \
+            -i /etc/id_service \
             tunnel@${conf.host}
           '';
         };

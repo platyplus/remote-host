@@ -15,7 +15,7 @@ sudo nixos-rebuild switch --upgrade
 #sudo nixos-rebuild switch --upgrade --install-bootloader
 
 # Next, if not already done, we'll put the content of the *public* key file for the reverse
-# tunnel (`/etc/nixos/local/id_tunnel.pub`) in the `authorized_keys` file for the tunnel user
+# tunnel (`/etc/nixos/local/id_service.pub`) in the `authorized_keys` file for the tunnel user
 # on github (this repo, `keys/tunnel`). (Easiest way is to connect via SSH on the local network
 # to copy the key.)
 # Then do a `git pull` and a rebuild of the config on the ssh relay servers.
