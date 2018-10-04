@@ -23,7 +23,7 @@
                 ${pkgs.git} remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
             fi
             ${pkgs.git} fetch
-            if [[ $(${pkgs.git} rev-parse HEAD) != $(${pkgs.git} rev-parse @{u}) ]]; then
+            if [[ $(git rev-parse HEAD) != $(git rev-parse @{u}) ]]; then
                 ${pkgs.git} reset --hard HEAD
                 ${pkgs.git} checkout --force --track origin/master  # Force to overwrite local files
                 ${pkgs.git} pull --rebase
