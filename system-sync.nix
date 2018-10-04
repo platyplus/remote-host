@@ -27,7 +27,7 @@
                 ${pkgs.git} reset --hard HEAD
                 ${pkgs.git} checkout --force --track origin/master  # Force to overwrite local files
                 ${pkgs.git} pull --rebase
-                ${pkgs.nixos-rebuild} switch --upgrade
+                nixos-rebuild switch --upgrade
             fi
         '')
     ];
