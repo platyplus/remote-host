@@ -1,14 +1,9 @@
 #!/bin/bash
 set -e # stop script on error
 CONFIG_DIRECTORY=/mnt/etc/nixos
-if [ -z "$API_ENDPOINT" ]
-then
-  API_ENDPOINT=https://graphql.platyplus.io
-fi
-if [ -z "$TGTDEV" ]
-then
-  TGTDEV=/dev/sda
-fi
+[ -z "$API_ENDPOINT" ] && API_ENDPOINT=https://graphql.platyplus.io
+[ -z "$TGTDEV" ] && TGTDEV=/dev/sda
+
 function create_partitions() {
   # TODO mute fdisk
   sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
@@ -103,26 +98,17 @@ function mutation_login() {
 function auth_admin() {
     while [ -z "$TOKEN" ]
     do
-        if [[ $LOGIN == '' ]] && [[ $PASSWORD == '' ]]
-        then
-        echo "Please enter an admin login/password"
-        fi
+        [ $LOGIN == '' ] && [ $PASSWORD == '' ] && echo "Please enter an admin login/password"
         while [[ $LOGIN == '' ]]
         do
             read -p "Login: " LOGIN
-            if [[ $LOGIN == '' ]]
-            then
-                echo "Should not be empty!"
-            fi
+            [ $LOGIN == '' ] && echo "Should not be empty!"
         done
         while [[ $PASSWORD == '' ]]
         do
             read -sp "Password: " PASSWORD  
             echo
-            if [[ $PASSWORD == '' ]]
-            then
-                echo "Should not be empty!"
-            fi
+            [ $PASSWORD == '' ] && echo "Should not be empty!"
         done
         DATA_LOGIN=`mutation_login $LOGIN $PASSWORD`
         TOKEN=`echo $DATA_LOGIN | jq '.data.signin.token'`
@@ -148,25 +134,17 @@ function create_service_account() {
     while [[ $NEW_HOSTNAME == '' ]]
     do
         read -p "Hostname of the machine: " NEW_HOSTNAME
-        if [[ $NEW_HOSTNAME == '' ]]
-        then
-            echo "Should not be empty!"
-        fi
+        [ $NEW_HOSTNAME == '' ] && echo "Should not be empty!"
         HOSTID=`graphql_query host 'hostName:\"'"$NEW_HOSTNAME"'\"' "{ id }" | jq '.data.host.id'`
         if [ -z "$HOSTID" ] || [ "$HOSTID" == 'null' ]
         then
             MODE=CREATE
         else
-                choice=N
-                echo "A configuration alread exists for the host $NEW_HOSTNAME."
-                read -p "Do you want to configure this server from the existing config? (y/N): " choice
-                if [[ "$choice" == "y" ]]
-                then
-                    MODE=UPDATE
-                else
-                    echo "Installation stopped."
-                fi
-            fi
+            choice=N
+            echo "A configuration alread exists for the host $NEW_HOSTNAME."
+            read -p "Do you want to configure this server from the existing config? (y/N): " choice
+            [ "$choice" == "y" ] && MODE=UPDATE || unset NEW_HOSTNAME
+        fi
     done
     if [[ "$MODE" != '' ]]
     then
@@ -181,10 +159,7 @@ function create_service_account() {
             USERID=`echo $DATA | jq '.data.upsertUser.user.id' | sed -e 's/^"//' -e 's/"$//'`
             TOKEN_SERVICE=`echo $DATA | jq '.data.upsertUser.token' | sed -e 's/^"//' -e 's/"$//'`
             read -p "Time zone (default: Europe/Brussels): " TIMEZONE
-            if [[ "$TIMEZONE" == '' ]]
-            then
-                TIMEZONE="Europe/Brussels"
-            fi
+            [ "$TIMEZONE" == '' ] && TIMEZONE="Europe/Brussels"
         elif [[ "$MODE" == "UPDATE" ]]
         then
             echo "TODO: update mode"
@@ -219,15 +194,25 @@ function update_nix_network_file() {
     TOKEN=$TOKEN_SERVICE
     # TODO: send the information to the server?
     cp "$CONFIG_DIRECTORY/static-network.nix.template" "$CONFIG_DIRECTORY/static-network.nix"
-    INTERFACE=`ip route | grep default | awk '{print $5}'` # TODO: prompt
+
+    DEFAULTINTERFACE=`ip route | grep default | awk '{print $5}'`
+    read -p "Network interface (default: $DEFAULTINTERFACE): " INTERFACE
+    [ "$INTERFACE" == '' ] && INTERFACE=$DEFAULTINTERFACE
     sed -i -e 's/{{interface}}/'"$INTERFACE"'/g' "$CONFIG_DIRECTORY/static-network.nix"
-    ADDRESS=`ip route | grep default | awk '{print $7}'` # TODO: prompt
+
+    DEFAULTADDRESS=`ip route | grep default | awk '{print $7}'`
+    read -p "IP Address (default: $DEFAULTADDRESS): " ADDRESS
+    [ "$ADDRESS" == '' ]] && ADDRESS=$DEFAULTADDRESS
     sed -i -e 's/{{address}}/'"$ADDRESS"'/g' "$CONFIG_DIRECTORY/static-network.nix"
-    GATEWAY=`ip route | grep default | awk '{print $3}'` # TODO: prompt
+
+    DEFAULTGATEWAY=`ip route | grep default | awk '{print $3}'`
+    read -p "Gateway (default: $DEFAULTGATEWAY): " GATEWAY
+    [ "$GATEWAY" == '' ] && GATEWAY=$DEFAULTGATEWAY
     sed -i -e 's/{{gateway}}/'"$GATEWAY"'/g' "$CONFIG_DIRECTORY/static-network.nix"
+
     echo "IP address: $ADDRESS"
-    echo "IP address: $ADDRESS" >> "$CONFIG_DIRECTORY/../issue"
-    unset TOKEN
+    [ -f "$CONFIG_DIRECTORY/../issue" ] && echo "IP address: $ADDRESS (remove this line from /etc/issue)" >> "$CONFIG_DIRECTORY/../issue"
+    unset TOKEN DEFAULTINTERFACE DEFAULTADDRESS
 }
 
 # TEST VALUES
