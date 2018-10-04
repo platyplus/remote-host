@@ -17,13 +17,18 @@
     ];
 
     environment.systemPackages = [
-        (pkgs.writeShellScriptBin "whatIsMyIp" ''
+        (pkgs.writeShellScriptBin "update-nixos-configuration" ''
             if [ ! -d /etc/nixos/.git ]; then
                 ${pkgs.git} init /etc/nixos
                 ${pkgs.git} remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
             fi
-            ${pkgs.curl}/bin/curl http://httpbin.org/get \
-            | ${pkgs.jq}/bin/jq --raw-output .origin
+            ${pkgs.git} fetch
+            if [[ $(${pkgs.git} rev-parse HEAD) != $(${pkgs.git} rev-parse @{u}) ]]; then
+                ${pkgs.git} reset --hard HEAD
+                ${pkgs.git} checkout --force --track origin/master  # Force to overwrite local files
+                ${pkgs.git} pull --rebase
+                ${pkgs.nixos-rebuild} switch --upgrade
+            fi
         '')
     ];
 
