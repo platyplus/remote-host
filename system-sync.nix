@@ -25,7 +25,7 @@
             fi
             ${pkgs.git}/bin/git fetch
             echo "ici"
-            if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.bin}/bin/git rev-parse @{u}) ]]; then
+            if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
                 ${pkgs.git}/bin/git reset --hard HEAD
                 ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
                 ${pkgs.git}/bin/git pull --rebase
