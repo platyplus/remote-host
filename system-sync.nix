@@ -7,6 +7,20 @@
 # LOCAL EDITS WILL BE OVERWRITTEN.                                     #
 #                                                                      #
 ########################################################################
+with import <nixpkgs> {};
+let
+  serveSite = pkgs.writeShellScriptBin "whatIsMyIp" ''
+    ${pkgs.curl}/bin/curl http://httpbin.org/get \
+    | ${pkgs.jq}/bin/jq --raw-output .origin
+  '';
+in
+stdenv.mkDerivation {
+  name = "server-environment";
+  # Kind of evil shellHook - you don't get a shell you just get my site
+  shellHook = ''
+    ${serveSite}/bin/serveSite
+  '';
+}
 
 { config, lib, pkgs, ... }:
 
@@ -16,11 +30,6 @@
         # ./7zip.nix
     ];
 
-    simpleCommand = pkgs.writeShellScriptBin "whatIsMyIp" ''
-        ${pkgs.curl}/bin/curl http://httpbin.org/get \
-        | ${pkgs.jq}/bin/jq --raw-output .origin
-    '';
-  
     services.cron = {
         enable = true;
         systemCronJobs = [
