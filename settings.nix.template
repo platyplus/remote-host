@@ -8,7 +8,7 @@
     ./users/pilou.nix
   ];
 
-  github_repository="platyplus/remote-host"
+  github_repository="platyplus/remote-host";
 
   hostname = "{{hostname}}";
 
