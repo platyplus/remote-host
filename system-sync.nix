@@ -11,11 +11,6 @@
 { config, lib, pkgs, ... }:
 
 {
-    imports = [
-        # ./docker.nix
-        # ./7zip.nix
-    ];
-
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "update-nixos-configuration" ''
             cd /etc/nixos
@@ -36,7 +31,7 @@
     services.cron = {
         enable = true;
         systemCronJobs = [
-            "*/5 * * * *      root    date >> /tmp/cron.log"
+            "*/5 * * * *      root    update-nixos-configuration >> /tmp/update-nixos-configuration.log"
         ];
     };
 
