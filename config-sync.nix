@@ -29,16 +29,11 @@
             fi
             if [ -f /var/sync-config.lock ]; then
                 endpoint=${(import ./settings.nix).api_endpoint}
-                echo $endpoint
                 login="service@${(import ./settings.nix).hostname}"
-                echo $login
                 password="$(cat ./local/service.pwd)"
-                echo $password
-                ${pkgs.curl}/bin/curl www.google.com
-                echo "bingo"
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
                 echo $query
-                ${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query"
+                ${pkgs.curl}/bin/curl -s "$endpoint" -H 'Content-Type: application/json' --compressed --data-binary "$query"
                 echo "ici"
                 DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
                 echo $DATA
