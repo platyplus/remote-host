@@ -32,11 +32,13 @@
                 login="service@${(import ./settings.nix).hostname}"
                 password="$(cat ./local/service.pwd)"
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
-                echo $endpoint $login $password $query
-                ${pkgs.curl}/bin/curl -s "$endpoint" -H 'Content-Type: application/json' --compressed --data-binary "$query"
-                echo "ici"
                 DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
                 echo $DATA
+                TOKEN=$(echo $DATA | jq '.data.signin.token' | sed -e 's/^"//' -e 's/"$//'`)
+                echo $TOKEN
+                query='{"query":"{\n  hostSettings(hostName:\"${(import ./settings.nix).hostname}\")\n}"}'
+                echo $QUERY
+                ${pkgs.curl}/bin/curl -s "$endpoint" -H "Authorization: $TOKEN" -H 'Content-Type: application/json' --compressed --data-binary "$query"
                 # echo "Rebuilding NixOS..."
                 # ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
                 # echo "Finish upgrading NixOS"
@@ -57,7 +59,7 @@
             HOME = "/root";
             } // config.networking.proxy.envVars;
 
-        path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl config.nix.package.out ];
+        path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl pkgs.jq config.nix.package.out ];
 
         # startAt = "*-*-* *:00/15:00";     
         startAt = "*-*-* *:*:00/30";     
