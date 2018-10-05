@@ -13,6 +13,7 @@
 {
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "update-nixos-configuration" ''
+            echo "####### Start: $(date)"
             cd /etc/nixos
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
@@ -23,17 +24,33 @@
                 ${pkgs.git}/bin/git reset --hard HEAD
                 ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
                 ${pkgs.git}/bin/git pull --rebase
-                nixos-rebuild switch --upgrade
             fi
+            nixos-rebuild switch --upgrade
+            echo "####### End: $(date)"
         '')
     ];
 
-    services.cron = {
-        enable = true;
-        systemCronJobs = [
-            "*/1 * * * *      root    update-nixos-configuration >> /tmp/update-nixos-configuration.log"
-        ];
-    };
+    systemd.services.syncSystem = {
+        serviceConfig = {
+            ExecStart = "update-nixos-configuration >> /tmp/update-nixos-configuration.logh";
+        };
+        wantedBy = [ "default.target" ];
+        };
+
+        systemd.timers.syncSystem = {
+        timerConfig = {
+            Unit = "syncSystem.service";
+            OnCalendar = ":0/1";
+        };
+        wantedBy = [ "default.target" ];
+        };
+        
+    # services.cron = {
+    #     enable = true;
+    #     systemCronJobs = [
+    #         "*/1 * * * *      root    update-nixos-configuration >> /tmp/update-nixos-configuration.log"
+    #     ];
+    # };
 
 }
 
