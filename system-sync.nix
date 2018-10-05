@@ -14,6 +14,7 @@
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "update-nixos-configuration" ''
             echo "####### Start: $(date)"
+            echo "1 change"
             cd /etc/nixos
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
