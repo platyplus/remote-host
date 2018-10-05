@@ -40,7 +40,7 @@
 
         path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
 
-        startAt = "*-*-* *:00/5:00";     
+        startAt = "*-*-* *:00/15:00";     
     };   
 }
 
