@@ -19,9 +19,11 @@
                 ${pkgs.git}/bin/git init .
                 ${pkgs.git}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
             fi
-            ${pkgs.git}/bin/git fetch \
-                && ${pkgs.git}/bin/git pull \
-                && ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+            ${pkgs.git}/bin/git fetch
+            if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
+                ${pkgs.git}/bin/git pull --rebase
+                ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+            fi
         '';
 
         restartIfChanged = false;
