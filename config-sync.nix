@@ -32,8 +32,8 @@
                 login="service@${(import ./settings.nix).hostname}"
                 password="$(cat ./local/service.pwd)"
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
-                echo $query
-                ${pkgs.curl}/bin/curl -s "$endpoint" -H 'Content-Type: application/json' --compressed --data-binary "$query" 2>&1
+                echo $endpoint $login $password $query
+                ${pkgs.curl}/bin/curl -s "$endpoint" -H 'Content-Type: application/json' --compressed --data-binary "$query"
                 echo "ici"
                 DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
                 echo $DATA
