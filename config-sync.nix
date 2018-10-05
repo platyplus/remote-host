@@ -26,11 +26,19 @@
                 echo "Changes pulled"
             fi
             if [ -f /var/sync-config.lock ]; then
+                endpoint=${(import ./settings.nix).api_endpoint}
+                echo $endpoint
+                login="service@${(import ./settings.nix).hostname}"
+                echo $login
+                password="$(cat ./local/service.pwd)"
+                echo $password
+                query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
+                echo $query
                 ${pkgs.curl}/bin/curl \
-                    -s ${(import ./settings.nix).api_endpoint} \
+                    -s "$endpoint" \
                     -H 'Content-Type: application/json' \
                     --compressed \
-                    --data-binary '{"query":"mutation\n{ \n signin (login: \"service@${(import ./settings.nix).hostname}\", password:\"'"$(cat ./local/service.pwd)"'\") { token } \n}\n"}'
+                    --data-binary "$query"
                 DATA=$(${pkgs.curl}/bin/curl \
                     -s ${(import ./settings.nix).api_endpoint} \
                     -H 'Content-Type: application/json' \
