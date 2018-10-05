@@ -32,6 +32,7 @@
                 echo $login
                 password="$(cat ./local/service.pwd)"
                 echo $password
+                curl www.google.com
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
                 echo $query
                 ${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query"
