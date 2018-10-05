@@ -28,18 +28,13 @@
     ];
 
     systemd.services.syncSystem = {
-        serviceConfig = {
-            WorkingDirectory = "/etc/nixos";
-            ExecStart = "update-nixos-configuration";
-        };
         environment = config.nix.envVars //
         { inherit (config.environment.sessionVariables) NIX_PATH;
           HOME = "/root";
         } // config.networking.proxy.envVars;
 
-        # script = ''
-        #     echo alternative to serviceConfig
-        # '';
+        script = "update-nixos-configuration";
+
         wantedBy = [ "default.target" ];
         };
 
