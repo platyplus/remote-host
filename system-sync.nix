@@ -35,6 +35,11 @@
         #     WorkingDirectory = "/etc/nixos";
         #     ExecStart = "update-nixos-configuration >> /tmp/update-nixos-configuration.logh";
         # };
+        environment = config.nix.envVars //
+        { inherit (config.environment.sessionVariables) NIX_PATH;
+          HOME = "/root";
+        } // config.networking.proxy.envVars;
+
         script = ''
             echo "####### Start: $(date)"
             cd /etc/nixos
@@ -45,7 +50,7 @@
             ${pkgs.git}/bin/git fetch
             if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
                 ${pkgs.git}/bin/git reset --hard HEAD
-                ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
+                # ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
                 ${pkgs.git}/bin/git pull --rebase
             fi
             ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade
@@ -54,6 +59,7 @@
         wantedBy = [ "default.target" ];
         };
 
+        path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
         systemd.timers.syncSystem = {
         timerConfig = {
             Unit = "syncSystem.service";
