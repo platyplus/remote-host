@@ -38,7 +38,9 @@
                 echo $TOKEN
                 query='{"query":"{\n  hostSettings(hostName:\"${(import ./settings.nix).hostname}\")\n}"}'
                 echo $QUERY
-                ${pkgs.curl}/bin/curl -s "$endpoint" -H "Authorization: $TOKEN" -H 'Content-Type: application/json' --compressed --data-binary "$query"
+                DATA=$(${pkgs.curl}/bin/curl -s "$endpoint" -H "Authorization: $TOKEN" -H 'Content-Type: application/json' --compressed --data-binary "$query")
+                SETTINGS=$(echo $DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$// | base64 --decode')
+                echo $SETTINGS
                 # echo "Rebuilding NixOS..."
                 # ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
                 # echo "Finish upgrading NixOS"
