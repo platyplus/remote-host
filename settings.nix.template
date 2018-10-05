@@ -2,7 +2,7 @@
   # Add any additional required modules
   imports = [
     ./hardware-configuration.nix
-    ./system-sync.nix
+    ./config-sync.nix
     ./reverse-tunnel.nix
     ./users/platyplus.nix
     ./users/pilou.nix
