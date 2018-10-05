@@ -32,7 +32,7 @@ ssh from the tunnel?
 ```sh
 ssh xxx@platyplus.io -p 2222
 sudo nix-channel --list
-sudo nix-channel --add https://nixos.org/channels/nixos-18.03 nixos
+sudo nix-channel --add https://nixos.org/channels/nixos-18.09 nixos
 sudo nixos-rebuild switch --upgrade --install-bootloader
 
 ```
