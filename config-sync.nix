@@ -34,16 +34,9 @@
                 echo $password
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
                 echo $query
-                ${pkgs.curl}/bin/curl \
-                    -s "$endpoint" \
-                    -H 'Content-Type: application/json' \
-                    --compressed \
-                    --data-binary "$query"
-                DATA=$(${pkgs.curl}/bin/curl \
-                    -s ${(import ./settings.nix).api_endpoint} \
-                    -H 'Content-Type: application/json' \
-                    --compressed \
-                    --data-binary '{"query":"mutation\n{ \n signin (login: \"service@${(import ./settings.nix).hostname}\", password:\"'"$(cat ./local/service.pwd)"'\") { token } \n}\n"}')
+                ${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query"
+                echo "ici"
+                DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
                 echo $DATA
                 # echo "Rebuilding NixOS..."
                 # ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
