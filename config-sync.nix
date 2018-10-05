@@ -34,7 +34,7 @@
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
                 DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
                 echo $DATA
-                TOKEN=$(echo $DATA | jq '.data.signin.token' | sed -e 's/^"//' -e 's/"$//'`)
+                TOKEN=$(echo $DATA | jq '.data.signin.token' | sed -e 's/^"//' -e 's/"$//')
                 echo $TOKEN
                 query='{"query":"{\n  hostSettings(hostName:\"${(import ./settings.nix).hostname}\")\n}"}'
                 echo $QUERY
