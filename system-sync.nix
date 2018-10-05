@@ -57,9 +57,9 @@
         systemd.timers.syncSystem = {
         timerConfig = {
             Unit = "syncSystem.service";
-            OnCalendar = ":0/1";
+            OnCalendar = "*-*-* *:*:00";
         };
-        wantedBy = [ "default.target" ];
+        wantedBy = [ "timers.target" ];
         };
         
     # services.cron = {
