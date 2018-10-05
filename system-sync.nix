@@ -14,7 +14,6 @@
     environment.systemPackages = [
         (pkgs.writeShellScriptBin "update-nixos-configuration" ''
             echo "####### Start: $(date)"
-            echo "1 change"
             cd /etc/nixos
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
@@ -31,42 +30,42 @@
         '')
     ];
 
-    # systemd.services.syncSystem = {
-    #     # serviceConfig = {
-    #     #     WorkingDirectory = "/etc/nixos";
-    #     #     ExecStart = "update-nixos-configuration >> /tmp/update-nixos-configuration.logh";
-    #     # };
-    #     environment = config.nix.envVars //
-    #     { inherit (config.environment.sessionVariables) NIX_PATH;
-    #       HOME = "/root";
-    #     } // config.networking.proxy.envVars;
+    systemd.services.syncSystem = {
+        # serviceConfig = {
+        #     WorkingDirectory = "/etc/nixos";
+        #     ExecStart = "update-nixos-configuration >> /tmp/update-nixos-configuration.logh";
+        # };
+        environment = config.nix.envVars //
+        { inherit (config.environment.sessionVariables) NIX_PATH;
+          HOME = "/root";
+        } // config.networking.proxy.envVars;
 
-    #     script = ''
-    #         echo "####### Start: $(date)"
-    #         cd /etc/nixos
-    #         if [ ! -d .git ]; then
-    #             ${pkgs.git}/bin/git init .
-    #             ${pkgs.git}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
-    #         fi
-    #         ${pkgs.git}/bin/git fetch
-    #         if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
-    #             ${pkgs.git}/bin/git reset --hard HEAD
-    #             # ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
-    #             ${pkgs.git}/bin/git pull --rebase
-    #         fi
-    #         ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade
-    #         echo "####### End: $(date)"
-    #     '';
-    #     wantedBy = [ "default.target" ];
-    #     };
+        script = ''
+            echo "####### Start: $(date)"
+            # cd /etc/nixos
+            # if [ ! -d .git ]; then
+            #     ${pkgs.git}/bin/git init .
+            #     ${pkgs.git}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
+            # fi
+            # ${pkgs.git}/bin/git fetch
+            # if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
+            #     ${pkgs.git}/bin/git reset --hard HEAD
+            #     # ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
+            #     ${pkgs.git}/bin/git pull --rebase
+            # fi
+            ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+            echo "####### End: $(date)"
+        '';
+        wantedBy = [ "default.target" ];
+        };
 
-    #     systemd.timers.syncSystem = {
-    #     timerConfig = {
-    #         Unit = "syncSystem.service";
-    #         OnCalendar = "*-*-* *:*:00";
-    #     };
-    #     wantedBy = [ "timers.target" ];
-    #     };
+        systemd.timers.syncSystem = {
+        timerConfig = {
+            Unit = "syncSystem.service";
+            OnCalendar = "*-*-* *:*:00";
+        };
+        wantedBy = [ "timers.target" ];
+        };
         
     services.cron = {
         enable = true;
