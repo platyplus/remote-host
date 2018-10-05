@@ -23,6 +23,7 @@
             if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
                 ${pkgs.git}/bin/git pull --rebase
                 touch /var/sync-config.lock
+                # TODO: remove the line below 
                  ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
                 echo "Changes pulled"
             fi
@@ -34,6 +35,7 @@
                 password="$(cat ./local/service.pwd)"
                 echo $password
                 ${pkgs.curl}/bin/curl www.google.com
+                echo "bingo"
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
                 echo $query
                 ${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query"
@@ -57,7 +59,7 @@
             HOME = "/root";
             } // config.networking.proxy.envVars;
 
-        path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
+        path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl config.nix.package.out ];
 
         # startAt = "*-*-* *:00/15:00";     
         startAt = "*-*-* *:*:00/30";     
