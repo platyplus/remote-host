@@ -37,7 +37,7 @@
                 echo $DATA
                 echo $DATA | jq '.data.hostSettings'
                 echo #DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$//'
-                SETTINGS=$(echo $DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$//' | base64 --decode')
+                SETTINGS=$(echo $DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$//' | base64 --decode)
                 echo $SETTINGS
                 # echo "Rebuilding NixOS..."
                 # ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
