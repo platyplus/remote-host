@@ -31,9 +31,26 @@
     ];
 
     systemd.services.syncSystem = {
-        serviceConfig = {
-            ExecStart = "update-nixos-configuration >> /tmp/update-nixos-configuration.logh";
-        };
+        # serviceConfig = {
+        #     WorkingDirectory = "/etc/nixos";
+        #     ExecStart = "update-nixos-configuration >> /tmp/update-nixos-configuration.logh";
+        # };
+        script = ''
+            echo "####### Start: $(date)"
+            cd /etc/nixos
+            if [ ! -d .git ]; then
+                ${pkgs.git}/bin/git init .
+                ${pkgs.git}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
+            fi
+            ${pkgs.git}/bin/git fetch
+            if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
+                ${pkgs.git}/bin/git reset --hard HEAD
+                ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
+                ${pkgs.git}/bin/git pull --rebase
+            fi
+            nixos-rebuild switch --upgrade
+            echo "####### End: $(date)"
+        ''
         wantedBy = [ "default.target" ];
         };
 
