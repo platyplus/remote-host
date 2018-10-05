@@ -41,6 +41,7 @@
         path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
 
 
-        startAt = optional "*-*-* *:*:00";        
+        startAt = optional "*-*-* *:*:00";     
+    };   
 }
 
