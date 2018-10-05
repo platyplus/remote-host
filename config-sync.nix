@@ -22,9 +22,25 @@
             ${pkgs.git}/bin/git fetch
             if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
                 ${pkgs.git}/bin/git pull --rebase
-                echo "Changes pulled. Rebuilding NixOS..."
-                ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
-                echo "Finish upgrading NixOS"
+                touch /var/sync-config.lock
+                echo "Changes pulled"
+            fi
+            if [ -f /var/sync-config.lock ]; then
+                ${pkgs.curl}/bin/curl \
+                    -s ${(import ./settings.nix).api_endpoint} \
+                    -H 'Content-Type: application/json' \
+                    --compressed \
+                    --data-binary '{"query":"mutation\n{ \n signin (login: \"service@${(import ./settings.nix).hostname}\", password:\"'"$(cat ./local/service.pwd)"'\") { token } \n}\n"}'
+                DATA=$(${pkgs.curl}/bin/curl \
+                    -s ${(import ./settings.nix).api_endpoint} \
+                    -H 'Content-Type: application/json' \
+                    --compressed \
+                    --data-binary '{"query":"mutation\n{ \n signin (login: \"service@${(import ./settings.nix).hostname}\", password:\"'"$(cat ./local/service.pwd)"'\") { token } \n}\n"}')
+                echo $DATA
+                # echo "Rebuilding NixOS..."
+                # ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+                # echo "Finish upgrading NixOS"
+                rm /var/sync-config.lock
             fi
         '';
 
@@ -40,7 +56,8 @@
 
         path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
 
-        startAt = "*-*-* *:00/15:00";     
+        # startAt = "*-*-* *:00/15:00";     
+        startAt = "*-*-* *:*:00/30";     
     };   
 }
 

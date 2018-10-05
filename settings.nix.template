@@ -9,6 +9,7 @@
   ];
 
   github_repository="platyplus/remote-host";
+  api_endpoint="https://graphql.platyplus.io";
 
   hostname = "{{hostname}}";
 
