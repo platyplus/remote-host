@@ -41,7 +41,7 @@
         systemd.timers.syncSystem = {
         timerConfig = {
             Unit = "syncSystem.service";
-            OnCalendar = "*-*-* */1:*:00";
+            OnCalendar = "*-*-* *:00:00";
         };
         wantedBy = [ "timers.target" ];
         };
