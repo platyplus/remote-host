@@ -50,7 +50,7 @@
             fi
             nixos-rebuild switch --upgrade
             echo "####### End: $(date)"
-        ''
+        '';
         wantedBy = [ "default.target" ];
         };
 
