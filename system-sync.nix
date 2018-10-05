@@ -59,6 +59,7 @@
         wantedBy = [ "default.target" ];
         };
 
+        path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
         systemd.timers.syncSystem = {
         timerConfig = {
             Unit = "syncSystem.service";
@@ -67,12 +68,12 @@
         wantedBy = [ "timers.target" ];
         };
         
-    services.cron = {
-        enable = true;
-        systemCronJobs = [
-            "*/1 * * * *      root    update-nixos-configuration >> /tmp/update-nixos-configuration.log"
-        ];
-    };
+    # services.cron = {
+    #     enable = true;
+    #     systemCronJobs = [
+    #         "*/1 * * * *      root    update-nixos-configuration >> /tmp/update-nixos-configuration.log"
+    #     ];
+    # };
 
 }
 
