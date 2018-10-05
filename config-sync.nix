@@ -24,7 +24,7 @@
                 ${pkgs.git}/bin/git pull --rebase
                 touch /var/sync-config.lock
                 # TODO: remove the line below 
-                 ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+                ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
                 echo "Changes pulled"
             fi
             if [ -f /var/sync-config.lock ]; then
@@ -33,7 +33,7 @@
                 password="$(cat ./local/service.pwd)"
                 query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
                 echo $query
-                ${pkgs.curl}/bin/curl -s "$endpoint" -H 'Content-Type: application/json' --compressed --data-binary "$query"
+                ${pkgs.curl}/bin/curl -s "$endpoint" -H 'Content-Type: application/json' --compressed --data-binary "$query" 2>&1
                 echo "ici"
                 DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
                 echo $DATA
