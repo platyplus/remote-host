@@ -40,9 +40,6 @@
 
         path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
 
-        script = ''
-            
-        '';
 
         startAt = optional "*-*-* *:*:00";        
 }
