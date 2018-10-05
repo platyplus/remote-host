@@ -22,7 +22,9 @@
             ${pkgs.git}/bin/git fetch
             if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
                 ${pkgs.git}/bin/git pull --rebase
+                echo "Changes pulled. Rebuilding NixOS..."
                 ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+                echo "Finish upgrading NixOS"
             fi
         '';
 
