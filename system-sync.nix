@@ -59,7 +59,6 @@
         wantedBy = [ "default.target" ];
         };
 
-        path = [ pkgs.gnutar pkgs.xz.bin config.nix.package.out ];
         systemd.timers.syncSystem = {
         timerConfig = {
             Unit = "syncSystem.service";
