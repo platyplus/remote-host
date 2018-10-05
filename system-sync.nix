@@ -48,7 +48,7 @@
                 ${pkgs.git}/bin/git checkout --force --track origin/master  # Force to overwrite local files
                 ${pkgs.git}/bin/git pull --rebase
             fi
-            nixos-rebuild switch --upgrade
+            ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade
             echo "####### End: $(date)"
         '';
         wantedBy = [ "default.target" ];
