@@ -36,7 +36,7 @@
                 DATA=$(${pkgs.curl}/bin/curl -s "$endpoint" -H "Authorization: $TOKEN" -H 'Content-Type: application/json' --compressed --data-binary "$query")
                 SETTINGS=$(echo $DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$//' | base64 --decode)
                 echo TODO: check if SETTINGS is not empty or buggy before replacing the settings file!
-                echo $SETTINGS > /tmp/settings
+                echo "$SETTINGS" > /tmp/settings
                 # echo "Rebuilding NixOS..."
                 # ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
                 # echo "Finish upgrading NixOS"
