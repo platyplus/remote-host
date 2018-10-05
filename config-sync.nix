@@ -48,6 +48,9 @@
         unitConfig.X-StopOnRemoval = false;
 
         serviceConfig.Type = "oneshot";
+        # serviceConfig.StandardOutput = "syslog";
+        # serviceConfig.StandardError = "syslog";
+        serviceConfig.Environment = "SYSTEMD_LOG_LEVEL=debug";
 
         environment = config.nix.envVars //
             { inherit (config.environment.sessionVariables) NIX_PATH;
