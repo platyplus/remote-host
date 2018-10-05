@@ -12,21 +12,17 @@
 
 {
     systemd.services.syncSystem = {
-        # environment = config.nix.envVars //
-        # { inherit (config.environment.sessionVariables) NIX_PATH;
-        #   HOME = "/root";
-        # } // config.networking.proxy.envVars;
-
+        description = "System sync from github configuration repository";
         script = ''
             cd /etc/nixos
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
                 ${pkgs.git}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
             fi
-            ${pkgs.git}/bin/git fetch && ${pkgs.git}/bin/git pull
-            ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+            ${pkgs.git}/bin/git fetch \
+                && ${pkgs.git}/bin/git pull \
+                && ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
         '';
-        description = "NixOS Upgrade";
 
         restartIfChanged = false;
         unitConfig.X-StopOnRemoval = false;
