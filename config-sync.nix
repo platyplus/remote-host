@@ -29,16 +29,14 @@
             fi
             if [ -f /var/sync-config.lock ]; then
                 endpoint=${(import ./settings.nix).api_endpoint}
-                login="service@${(import ./settings.nix).hostname}"
-                password="$(cat ./local/service.pwd)"
-                query='{"query":"mutation\n{ \n signin (login: \"'"$login"'\", password:\"'"$password"'\") { token } \n}\n"}'
+                query='{"query":"mutation\n{ \n signin (login: \"service@${(import ./settings.nix).hostname}\", password:\"'"$(cat ./local/service.pwd)"'\") { token } \n}\n"}'
                 DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
-                echo $DATA
                 TOKEN=$(echo $DATA | jq '.data.signin.token' | sed -e 's/^"//' -e 's/"$//')
-                echo $TOKEN
                 query='{"query":"{\n  hostSettings(hostName:\"${(import ./settings.nix).hostname}\")\n}"}'
-                echo $QUERY
                 DATA=$(${pkgs.curl}/bin/curl -s "$endpoint" -H "Authorization: $TOKEN" -H 'Content-Type: application/json' --compressed --data-binary "$query")
+                echo $DATA
+                echo $DATA | jq '.data.hostSettings'
+                echo #DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$//
                 SETTINGS=$(echo $DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$// | base64 --decode')
                 echo $SETTINGS
                 # echo "Rebuilding NixOS..."
