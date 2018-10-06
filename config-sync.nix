@@ -15,7 +15,7 @@
         description = "System sync from github configuration repository";
         script = ''
             cd /etc/nixos
-            ${pkgs.diffutils}/bin/diff <(echo "bip") <(echo "bap") || exit 0
+            ${pkgs.diffutils}/bin/diff <(echo "bip") <(echo "bap") || :
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
                 ${pkgs.git}/bin/git remote add origin "https://github.com/${(import ./settings.nix).github_repository}"
@@ -32,7 +32,7 @@
             SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
             if [ -n "$SETTINGS" ]; then
                 echo "prediff"
-                changes=$(${pkgs.diffutils}/bin/diff <(echo "$SETTINGS") /etc/nixos/settings.nix || exit 0)
+                changes=$(${pkgs.diffutils}/bin/diff <(echo "$SETTINGS") /etc/nixos/settings.nix || :)
                 echo "postDiff"
                 if [[ -z $changes ]]; then
                     echo "$SETTINGS" > /etc/nixos/settings.nix
