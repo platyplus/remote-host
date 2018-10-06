@@ -15,7 +15,7 @@
         description = "System sync from github configuration repository";
         script = ''
             #!${pkgs.stdenv.shell}
-            ${pkgs.diff}/bin/diff
+            echo ${pkgs}
             cd /etc/nixos
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
