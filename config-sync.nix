@@ -15,7 +15,6 @@
         description = "System sync from github configuration repository";
         script = ''
             cd /etc/nixos
-            ${pkgs.diffutils}/bin/diff
             ${pkgs.diffutils}/bin/diff <(echo "bip") <(echo "bap")
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
