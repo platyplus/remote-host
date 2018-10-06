@@ -57,7 +57,7 @@
 
         path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl pkgs.jq config.nix.package.out ];
 
-        startAt = "*-*-* *:00/3:00";     
+        startAt = "*-*-* *:00/15:00";     
     };   
 }
 
