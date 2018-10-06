@@ -14,8 +14,6 @@
     systemd.services.syncSystem = {
         description = "System sync from github configuration repository";
         script = ''
-            #!${pkgs.stdenv.shell}
-            echo ${pkgs.diffutils}
             cd /etc/nixos
             if [ ! -d .git ]; then
                 ${pkgs.git}/bin/git init .
@@ -33,7 +31,7 @@
             SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
             if [ -n "$SETTINGS" ]; then
                 echo "prediff"
-                changes=$(diff <(echo "$SETTINGS") /etc/nixos/settings.nix)
+                changes=$(${pkgs.diffutils}/bin/diff <(echo "$SETTINGS") /etc/nixos/settings.nix)
                 echo "postDiff"
                 if [[ -z $changes ]]; then
                     echo "$SETTINGS" > /etc/nixos/settings.nix
