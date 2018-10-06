@@ -57,7 +57,7 @@
             HOME = "/root";
             } // config.networking.proxy.envVars;
 
-        path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl pkgs.jq config.nix.package.out ];
+        path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl pkgs.diff pkgs.jq config.nix.package.out ];
 
         startAt = "*-*-* *:00/2:00";     
         # startAt = "*-*-* *:*:00/30";     
