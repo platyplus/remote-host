@@ -31,7 +31,8 @@
             status_code=$(curl -u "$credentials" -H 'Cache-Control: no-cache' --silent -o /dev/null --head --write-out '%{http_code}\n' $endpoint)
             if [ $status_code == "200" ]; then
                 SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
-                if [ -n "$SETTINGS" ] && [ "$SETTINGS" != 'null' ]; then # TODO: && different from the existing file
+                changes=$(diff <(echo $SETTINGS) /etc/nixos/settings.nix)
+                if [ -n "$SETTINGS" ] && [ "$SETTINGS" != 'null' ] && [[ -Z $changes ]]; then # TODO: && different from the existing file
                     echo "$SETTINGS" > /etc/nixos/settings.nix
                     echo "Pushed the new configuration from the server."
                     touch /var/sync-config.lock
