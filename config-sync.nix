@@ -28,10 +28,10 @@
             echo "Connecting to the cloud server to get the settings file..."
             endpoint=${(import ./settings.nix).api_endpoint}/host-settings
             credentials="${(import ./settings.nix).hostname}:$(cat ./local/service.pwd)"
-            SETTINGS=$(${pkgs.curl}/bin/curl -s -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
+            SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
             if [ -n "$SETTINGS" ]; then
                 echo "prediff"
-                changes=$(diff <(echo $SETTINGS) /etc/nixos/settings.nix)
+                changes=$(${pkgs.diff}/bin/diff <(echo $SETTINGS) /etc/nixos/settings.nix)
                 echo "postDiff"
                 if [[ -z $changes ]]; then
                     echo "$SETTINGS" > /etc/nixos/settings.nix
