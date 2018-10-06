@@ -32,7 +32,7 @@
             if [ $status_code == "200" ]; then
                 SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
                 if [ -n "$SETTINGS" ] && [ "$SETTINGS" != 'null' ]; then # TODO: && different from the existing file
-                    echo "$SETTINGS" > /etc/nixos/settings # TODO: .nix
+                    echo "$SETTINGS" > /etc/nixos/settings.nix
                     echo "Pushed the new configuration from the server."
                     touch /var/sync-config.lock
                 fi
@@ -57,8 +57,8 @@
 
         path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl pkgs.jq config.nix.package.out ];
 
-        # startAt = "*-*-* *:00/15:00";     
-        startAt = "*-*-* *:*:00/30";     
+        startAt = "*-*-* *:00/15:00";     
+        # startAt = "*-*-* *:*:00/30";     
     };   
 }
 
