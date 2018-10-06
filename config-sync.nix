@@ -27,12 +27,15 @@
             fi
             echo "Connecting to the cloud server to get the settings file..."
             endpoint=${(import ./settings.nix).api_endpoint}/host-settings
-            SETTINGS=$(${pkgs.curl}/bin/curl -H 'Cache-Control: no-cache' $endpoint -u "${(import ./settings.nix).hostname}:$(cat ./local/service.pwd)")
-            # TODO: what if the server sends an error?
-            if [ -n "$SETTINGS" ] && [ "$SETTINGS" != 'null' ]; then # TODO: && different from the existing file
-                echo "$SETTINGS" > /etc/nixos/settings
-                echo "Pushed the new configuration from the server."
-                touch /var/sync-config.lock
+            credentials="${(import ./settings.nix).hostname}:$(cat ./local/service.pwd)"
+            status_code=$(curl -u "$credentials" -H 'Cache-Control: no-cache' --silent -o /dev/null --head --write-out '%{http_code}\n' $endpoint)
+            if [ $status_code == "200" ]; then
+                SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
+                if [ -n "$SETTINGS" ] && [ "$SETTINGS" != 'null' ]; then # TODO: && different from the existing file
+                    echo "$SETTINGS" > /etc/nixos/settings
+                    echo "Pushed the new configuration from the server."
+                    touch /var/sync-config.lock
+                fi
             fi
             if [ -f /var/sync-config.lock ]; then
                 echo "Rebuilding NixOS..."
