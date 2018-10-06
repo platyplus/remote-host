@@ -180,8 +180,7 @@ function create_service_account() {
 function update_nix_settings_file() {
     TOKEN=$TOKEN_ADMIN
     DATA=`graphql_query hostSettings 'hostName:\"'"$NEW_HOSTNAME"'\"' | jq '.data'`
-    if [ -z "$DATA" ] || [ "$DATA" == 'null' ]
-    then
+    if [ -z "$DATA" ] || [ "$DATA" == 'null' ]; then
         # TODO: handle errors
         echo "Error: $DATA"
     else

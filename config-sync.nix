@@ -22,25 +22,23 @@
             ${pkgs.git}/bin/git fetch
             if [[ $(${pkgs.git}/bin/git rev-parse HEAD) != $(${pkgs.git}/bin/git rev-parse @{u}) ]]; then
                 ${pkgs.git}/bin/git pull --rebase
-                touch /var/sync-config.lock
-                # TODO: remove the line below 
-                ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
                 echo "Changes pulled"
+                touch /var/sync-config.lock
+            fi
+            echo "Connecting to the cloud server to get the settings file..."
+            endpoint=${(import ./settings.nix).api_endpoint}/host-settings
+            SETTINGS=$(${pkgs.curl}/bin/curl -H 'Cache-Control: no-cache' $endpoint -u "${(import ./settings.nix).hostname}:$(cat ./local/service.pwd)")
+            # TODO: what if the server sends an error?
+            if [ -n "$SETTINGS" ] && [ "$SETTINGS" != 'null' ]; then # TODO: && different from the existing file
+                echo "$SETTINGS" > /etc/nixos/settings
+                echo "Pushed the new configuration from the server."
+                touch /var/sync-config.lock
             fi
             if [ -f /var/sync-config.lock ]; then
-                endpoint=${(import ./settings.nix).api_endpoint}
-                query='{"query":"mutation\n{ \n signin (login: \"service@${(import ./settings.nix).hostname}\", password:\"'"$(cat ./local/service.pwd)"'\") { token } \n}\n"}'
-                DATA=$(${pkgs.curl}/bin/curl -s $endpoint -H 'Content-Type: application/json' --compressed --data-binary "$query")
-                TOKEN=$(echo $DATA | jq '.data.signin.token' | sed -e 's/^"//' -e 's/"$//')
-                query='{"query":"{\n  hostSettings(hostName:\"${(import ./settings.nix).hostname}\")\n}"}'
-                DATA=$(${pkgs.curl}/bin/curl -s "$endpoint" -H "Authorization: $TOKEN" -H 'Content-Type: application/json' --compressed --data-binary "$query")
-                SETTINGS=$(echo $DATA | jq '.data.hostSettings' | sed -e 's/^"//' -e 's/"$//' | base64 --decode)
-                echo TODO: check if SETTINGS is not empty or buggy before replacing the settings file!
-                echo "$SETTINGS" > /tmp/settings
-                # echo "Rebuilding NixOS..."
-                # ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
-                # echo "Finish upgrading NixOS"
-                # rm /var/sync-config.lock
+                echo "Rebuilding NixOS..."
+                ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --no-build-output
+                rm /var/sync-config.lock
+                echo "Finished upgrading NixOS"
             fi
         '';
 
