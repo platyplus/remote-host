@@ -31,7 +31,7 @@
             SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
             if [ -n "$SETTINGS" ]; then
                 echo "prediff"
-                changes=$(${pkgs.diff}/bin/diff <(echo $SETTINGS) /etc/nixos/settings.nix)
+                changes=$(diff <(echo $SETTINGS) /etc/nixos/settings.nix)
                 echo "postDiff"
                 if [[ -z $changes ]]; then
                     echo "$SETTINGS" > /etc/nixos/settings.nix
@@ -57,7 +57,7 @@
             HOME = "/root";
             } // config.networking.proxy.envVars;
 
-        path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl pkgs.diff pkgs.jq config.nix.package.out ];
+        path = [ pkgs.gnutar pkgs.xz.bin pkgs.curl pkgs.jq config.nix.package.out ];
 
         startAt = "*-*-* *:00/2:00";     
         # startAt = "*-*-* *:*:00/30";     
