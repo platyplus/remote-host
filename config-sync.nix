@@ -29,7 +29,6 @@
             endpoint=${(import ./settings.nix).api_endpoint}/host-settings
             credentials="${(import ./settings.nix).hostname}:$(cat ./local/service.pwd)"
             status_code=$(curl -u "$credentials" -H 'Cache-Control: no-cache' --silent -o /dev/null --head --write-out '%{http_code}\n' $endpoint)
-            ${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint # TODO:remove
             if [ $status_code == "200" ]; then
                 SETTINGS=$(${pkgs.curl}/bin/curl -u "$credentials" -H 'Cache-Control: no-cache' --silent $endpoint)
                 if [ -n "$SETTINGS" ] && [ "$SETTINGS" != 'null' ]; then # TODO: && different from the existing file
