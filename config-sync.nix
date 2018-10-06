@@ -15,6 +15,7 @@
         description = "System sync from github configuration repository";
         script = ''
             cd /etc/nixos
+            echo "####################### Test #########################"
             -${pkgs.diffutils}/bin/diff <(echo "bip") <(echo "bap")
             echo "####################### pass!!!! #########################"
             if [ ! -d .git ]; then
