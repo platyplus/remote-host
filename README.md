@@ -1,7 +1,7 @@
 # NixOS
 NixOS config for remote servers with little connectivity and available skills.
 
-## Installing NixOS
+## Installing NixOS automatically
 
 ### Prepare a bootable USB key
 TODO
@@ -36,6 +36,8 @@ sudo nix-channel --add https://nixos.org/channels/nixos-18.03 nixos
 sudo nixos-rebuild switch --upgrade --install-bootloader
 
 ```
+## Installing NixOS on a Digital Ocean droplet
+See [NixOS infect](https://github.com/elitak/nixos-infect) and [this tutorial](https://chris-martin.org/2016/nixos-on-digitalocean)
 
 ## TODO: Creating an encrypted data partition
 

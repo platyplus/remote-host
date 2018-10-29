@@ -28,8 +28,7 @@
   };
 
   systemd.services = let
-    reverse_tunnel_config = [ { name = "google";  host = "msfrelay1.msfict.info"; }
-                              { name = "ixelles"; host = "ehealthsshrelayhq1.msf.be"; } ];
+    reverse_tunnel_config = [ { name = "digitalocean";  host = "relay.platy.plus"; } ];
     remote_forward_port = (import ./settings.nix).reverse_tunnel_forward_port;
     make_service = conf: {
       "autossh-reverse-tunnel-${conf.name}" = {

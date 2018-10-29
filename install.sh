@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e # stop script on error
 CONFIG_DIRECTORY=/mnt/etc/nixos
-GITHUB_REPO=platyplus/remote-host
+GITHUB_REPO=remote-host
+GITHUB_ORG=platyplus
 [ -z "$API_ENDPOINT" ] && API_ENDPOINT=https://graphql.platyplus.io
 [ -z "$TGTDEV" ] && TGTDEV=/dev/sda
 
@@ -40,11 +41,11 @@ function prepare_os() {
   mkdir /mnt/boot
   mount /dev/disk/by-label/nixos_boot /mnt/boot
   nixos-generate-config --root /mnt
-  curl -L "https://github.com/$GITHUB_REPO/archive/master.zip" --output /tmp/config.zip
+  curl -L "https://github.com/$GITHUB_ORG/$GITHUB_REPO/archive/master.zip" --output /tmp/config.zip
   cd /tmp
   unzip config.zip
-  mv NixOS-master/* "$CONFIG_DIRECTORY"
-  mv NixOS-master/.gitignore "$CONFIG_DIRECTORY"
+  mv $GITHUB_REPO-master/* "$CONFIG_DIRECTORY"
+  mv $GITHUB_REPO-master/.gitignore "$CONFIG_DIRECTORY"
 
   # Local settings: settings that are dependent to the hardware and therefore that
   # are not required to store on the cloud server if we need to reinstall on new hardware
