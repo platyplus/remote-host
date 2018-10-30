@@ -171,6 +171,7 @@
       forwardX11 = false;
       passwordAuthentication = false;
       challengeResponseAuthentication = false;
+      ports = [4422];
       extraConfig = ''
         StrictModes yes
         AllowAgentForwarding no

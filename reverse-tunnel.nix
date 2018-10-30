@@ -28,7 +28,7 @@
   };
 
   systemd.services = let
-    reverse_tunnel_config = [ { name = "digitalocean";  host = "relay.platy.plus"; } ];
+    reverse_tunnel_config = [ { name = "digitalocean";  host = "relay.platy.plus"; port= 4422; } ];
     remote_forward_port = (import ./settings.nix).reverse_tunnel_forward_port;
     make_service = conf: {
       "autossh-reverse-tunnel-${conf.name}" = {
@@ -55,7 +55,8 @@
             -o "IdentitiesOnly=yes" \
             -o "Compression=yes" \
             -o "ControlMaster=no" \
-            -R ${remote_forward_port}:localhost:22 \
+            -R ${remote_forward_port}:localhost:${conf.port} \
+            -p 4422 \
             -i /etc/id_service \
             tunnel@${conf.host}
           '';
