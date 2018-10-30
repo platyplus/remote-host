@@ -41,12 +41,15 @@ function prepare_os() {
   mkdir /mnt/boot
   mount /dev/disk/by-label/nixos_boot /mnt/boot
   nixos-generate-config --root /mnt
-  curl -L "https://github.com/$GITHUB_ORG/$GITHUB_REPO/archive/master.zip" --output /tmp/config.zip
-  cd /tmp
-  unzip config.zip
-  mv $GITHUB_REPO-master/* "$CONFIG_DIRECTORY"
-  mv $GITHUB_REPO-master/.gitignore "$CONFIG_DIRECTORY"
-
+  #curl -L "https://github.com/$GITHUB_ORG/$GITHUB_REPO/archive/master.zip" --output /tmp/config.zip
+  #cd /tmp
+  #unzip config.zip
+  #mv $GITHUB_REPO-master/* "$CONFIG_DIRECTORY"
+  #mv $GITHUB_REPO-master/.gitignore "$CONFIG_DIRECTORY"
+  cd $CONFIG_DIRECTORY/..
+  git clone git://github.com/"$GITHUB_ORG"/"$GITHUB_REPO".git
+  mv $GITHUB_REPO nixos
+  
   # Local settings: settings that are dependent to the hardware and therefore that
   # are not required to store on the cloud server if we need to reinstall on new hardware
   cp "$CONFIG_DIRECTORY/settings-hardware.nix.template" "$CONFIG_DIRECTORY/settings-hardware.nix"
