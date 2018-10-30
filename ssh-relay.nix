@@ -18,7 +18,7 @@
   ];
 
   services.openssh = {
-    ports = [ 22 80 443 ];
+    ports = [ 4422 80 443 ];
   };
 
 }
